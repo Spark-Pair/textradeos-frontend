@@ -62,7 +62,7 @@ export default function Login() {
             {/* Header */}
             <div className="text-center space-y-1">
               <h1 className="text-2xl font-semibold text-gray-800 tracking-tight">
-                Welcome 👋
+                Welcome Back 👋
               </h1>
               <p className="text-gray-500 text-sm">
                 Sign in to continue to{" "}
