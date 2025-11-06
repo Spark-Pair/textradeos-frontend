@@ -21,7 +21,7 @@ export default function Businesses() {
     <div className="p-6 w-full">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold">Businesses</h1>
-        {/* <Button onClick={() => setIsCreateModalOpen(true)}>Add Business</Button> */}
+        <Button onClick={() => setIsCreateModalOpen(true)}>Add Business</Button>
       </div>
 
       {/* Table container */}
