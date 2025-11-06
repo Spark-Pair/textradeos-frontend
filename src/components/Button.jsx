@@ -26,7 +26,7 @@ export default function Button({ children, variant="green-btn", className, ...pr
   return variant == 'green-btn' ? 
     (<button
       {...props}
-      className={`px-4 py-2 rounded-xl transition bg-[#127475] text-white hover:bg-[#0c5f60] ${className}`}
+      className={`active:scale-95 px-4 py-2 rounded-xl transition bg-[#127475] text-white hover:bg-[#0c5f60] ${className}`}
     >
       {children}
     </button>)
