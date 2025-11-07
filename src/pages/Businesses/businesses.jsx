@@ -143,7 +143,7 @@ export default function Businesses() {
         </div>
 
         {/* Scrollable Body */}
-        <div className="overflow-y-auto pb-20">
+        <div className="overflow-y-auto pb-18">
           {businesses.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
               No businesses found.
@@ -161,7 +161,7 @@ export default function Businesses() {
                     business: biz,
                   });
                 }}
-                className="grid [grid-template-columns:60px_1.5fr_1fr_1fr] border-b border-gray-300 last:border-0 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                className="grid [grid-template-columns:60px_1.5fr_1fr_1fr] border-b border-gray-300 px-4 py-2 hover:bg-gray-100 cursor-pointer"
               >
                 <div>{index + 1}</div>
                 <div>{biz.name}</div>
