@@ -40,10 +40,14 @@ export default function Dropdown({ children, title, icon }) {
             transition={{ duration: 0.15 }}
             className="absolute bottom-14 right-0 z-50 bg-[#f8fbfb] shadow-md border border-gray-300 rounded-xl p-2 w-52"
           >
-            <div className="header px-2 tracking-wide text-gray-700">
-              { title }
-            </div>
-            <div className="border-b border-gray-400 mt-2 mb-1 mx-1"></div>
+            { title && (
+              <>
+                <div className="header px-2 tracking-wide text-gray-700">
+                  { title }
+                </div>
+                <div className="border-b border-gray-400 mt-2 mb-1 mx-1"></div>
+              </>
+            ) }
             <div className="text-gray-700">
               { children }
             </div>
