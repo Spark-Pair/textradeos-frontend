@@ -23,9 +23,48 @@ function Notifications() {
     };
   }, [isNotificationOpen]);
 
+  // ✅ Example Notifications Data
+  const notifications = [
+    {
+      id: 1,
+      type: "info",
+      title: "New update available",
+      message: "Version 1.2.3 is ready to install.",
+      button: { label: "Update", action: () => alert("Updating...") },
+    },
+    {
+      id: 2,
+      type: "success",
+      title: "Backup completed",
+      message: "Your system backup finished successfully.",
+    },
+    {
+      id: 3,
+      type: "warning",
+      title: "Low disk space",
+      message: "Only 1.5 GB remaining on drive C:",
+      button: { label: "Free up space", action: () => alert("Cleaning...") },
+    },
+    {
+      id: 4,
+      type: "error",
+      title: "Sync failed",
+      message: "Could not connect to server. Try again later.",
+      button: { label: "Retry", action: () => alert("Retrying...") },
+    },
+  ];
+
+  // ✅ Variant style helper
+  const variantStyles = {
+    info: "bg-blue-50 border-blue-300 text-blue-800",
+    success: "bg-green-50 border-green-300 text-green-800",
+    warning: "bg-yellow-50 border-yellow-300 text-yellow-800",
+    error: "bg-red-50 border-red-300 text-red-800",
+  };
+
   return (
     <>
-      {/* 🔹 Always-present translucent overlay */}
+      {/* 🔹 Always-present overlay */}
       <div
         onClick={() => setIsNotificationOpen(false)}
         className={`fixed inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity duration-300 z-40 ${
@@ -42,11 +81,41 @@ function Notifications() {
           isNotificationOpen ? "-translate-x-full" : ""
         }`}
       >
-        <div className="notifications w-full h-full bg-[#f8fbfb] drop-shadow-sm border border-r-0 border-gray-300 rounded-2xl"></div>
+        <div className="w-full h-full bg-[#f8fbfb] drop-shadow-md border border-r-0 border-gray-300 rounded-lg flex flex-col">
+          <div className="flex justify-between items-center px-2 py-3 border-b border-gray-200">
+            <h2 className="text-lg font-semibold">Notifications</h2>
+            <button
+              className="text-gray-500 hover:text-gray-700"
+              onClick={() => setIsNotificationOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto space-y-3 p-2">
+            {notifications.map((n) => (
+              <div
+                key={n.id}
+                className={`border rounded-lg p-3 ${variantStyles[n.type]} transition-all duration-300`}
+              >
+                <div className="font-semibold text-sm">{n.title}</div>
+                <div className="text-xs mt-1">{n.message}</div>
+                {n.button && (
+                  <button
+                    onClick={n.button.action}
+                    className="mt-2 text-xs font-medium px-3 py-1 bg-white/70 hover:bg-white rounded-md border border-gray-300"
+                  >
+                    {n.button.label}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* 🔹 Toggle Button */}
         <div
-          className="button w-4 h-16 bg-[#f8fbfb] drop-shadow-md border border-r-0 border-gray-300 absolute right-full top-40 rounded-l-lg flex items-center justify-center cursor-pointer"
+          className="button w-4 h-16 bg-[#f8fbfb] drop-shadow-md border border-r-0 border-gray-300 absolute right-full top-40 rounded-l-md flex items-center justify-center cursor-pointer"
           onClick={() => setIsNotificationOpen(!isNotificationOpen)}
         >
           <svg
