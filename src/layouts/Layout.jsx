@@ -1,9 +1,9 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import Button from "../components/Button";
 import Notifications from "../components/Notifications";
 import MenuModal from "../components/MenuModal";
-import { AnimatePresence } from "framer-motion";
 import { Bell, Building2, LayoutDashboard, Menu, User, Users } from "lucide-react";
 
 export default function Layout({ children }) {
@@ -16,8 +16,17 @@ export default function Layout({ children }) {
 
   return (
     <div className="h-screen flex flex-col bg-[#eef5f5] overflow-hidden relative">
-      {/* 🔹 Main Content */}
-      <div className="p-5 h-full overflow-y-auto">{children || <Outlet />}</div>
+      {/* 🔹 Animated Main Content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={window.location.pathname} // animates on route change
+          initial={{ opacity: 0, y: 20, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          className="p-5 h-full overflow-y-auto"
+        >
+          {children || <Outlet />}
+        </motion.div>
+      </AnimatePresence>
 
       <Notifications />
 
@@ -27,7 +36,6 @@ export default function Layout({ children }) {
           <Menu size={20} />
         </Button>
 
-        {/* 🔹 Separator */}
         <div className="w-px h-5 bg-gray-300" />
 
         <Button variant="normal-btn" onClick={() => navigate("/dashboard")}>
@@ -40,7 +48,6 @@ export default function Layout({ children }) {
           <Users size={20} />
         </Button>
 
-        {/* 🔹 Separator */}
         <div className="w-px h-5 bg-gray-300" />
 
         <Button variant="normal-btn">
