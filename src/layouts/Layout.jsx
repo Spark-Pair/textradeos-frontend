@@ -43,9 +43,6 @@ export default function Layout({ children }) {
         {/* 🔹 Separator */}
         <div className="w-px h-5 bg-gray-300" />
 
-        <Button variant="normal-btn" onClick={() => navigate("/notifications")}>
-          <Bell size={20} />
-        </Button>
         <Button variant="normal-btn">
           <User size={20} />
         </Button>
