@@ -74,11 +74,11 @@ export default function Businesses() {
   };
 
   const columns = [
-    { label: "#", render: (_, i) => i + 1, width: "60px" },
+    { label: "#", render: (_, i) => i + 1, width: "40px" },
     { label: "Business Name", field: "name", width: "auto" },
-    { label: "Owner", field: "owner", width: "15%" },
+    { label: "Owner", field: "owner", width: "12%" },
     { label: "Phone", field: "phone_no", width: "15%" },
-    { label: "Registration Date", field: "reg_date", width: "14%", },
+    { label: "Registration Date", field: "reg_date", width: "18%", },
     { label: "Type", field: "type", width: "10%" },
     { label: "Price", field: "price", width: "10%" },
     { label: "Status", field: "status", width: "10%" },
