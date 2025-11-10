@@ -37,10 +37,21 @@ export default function Businesses() {
       {/* 🔹 Table Container */}
       <div className="border border-gray-300 rounded-2xl p-1 shadow-sm grid grid-rows-[auto_1fr] overflow-hidden">
         {/* Header Row */}
-        <div className="grid [grid-template-columns:60px_1.5fr_1fr_1fr] bg-[#127475] text-white rounded-xl px-4 py-1.5">
+        <div className="grid [grid-template-columns:60px_1.5fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] bg-[#127475] text-white rounded-xl px-4 py-1.5">
           <div>#</div>
           <div>Business Name</div>
           <div>Owner</div>
+          <div>Location</div>
+          <div>Location</div>
+          <div>Location</div>
+          <div>Location</div>
+          <div>Location</div>
+          <div>Location</div>
+          <div>Location</div>
+          <div>Location</div>
+          <div>Location</div>
+          <div>Location</div>
+          <div>Location</div>
           <div>Location</div>
         </div>
 
@@ -63,11 +74,22 @@ export default function Businesses() {
                     business: biz,
                   });
                 }}
-                className="grid [grid-template-columns:60px_1.5fr_1fr_1fr] border-b border-gray-300 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                className="grid [grid-template-columns:60px_1.5fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] border-b border-gray-300 px-4 py-2 hover:bg-gray-100 cursor-pointer"
               >
                 <div>{index + 1}</div>
                 <div>{biz.name}</div>
                 <div>{biz.owner}</div>
+                <div>{biz.location}</div>
+                <div>{biz.location}</div>
+                <div>{biz.location}</div>
+                <div>{biz.location}</div>
+                <div>{biz.location}</div>
+                <div>{biz.location}</div>
+                <div>{biz.location}</div>
+                <div>{biz.location}</div>
+                <div>{biz.location}</div>
+                <div>{biz.location}</div>
+                <div>{biz.location}</div>
                 <div>{biz.location}</div>
               </div>
             ))
