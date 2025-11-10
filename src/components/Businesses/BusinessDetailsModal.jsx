@@ -1,7 +1,7 @@
 import Modal from "../Modal";
 import Button from "../Button";
 
-export default function BusinessDetailsModal({ business, onClose }) {
+export default function BusinessDetailsModal({ business, onClose, onEdit }) {
   if (!business) return null;
 
   return (
@@ -16,7 +16,13 @@ export default function BusinessDetailsModal({ business, onClose }) {
       </div>
 
       <div className="mt-6 flex justify-end gap-2">
-        <Button onClick={() => alert("Edit feature coming soon")} className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button
+          onClick={() => {
+            onClose();
+            onEdit(business);
+          }}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+        >
           Edit
         </Button>
         <Button onClick={onClose} className="bg-gray-300 hover:bg-gray-400">

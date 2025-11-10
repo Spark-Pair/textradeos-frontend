@@ -5,10 +5,12 @@ import AddBusinessModal from "../../components/Businesses/AddBusinessModal";
 import BusinessDetailsModal from "../../components/Businesses/BusinessDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
+import { formatDateWithDay } from "../../utils/dateFormatter";
 
 export default function Businesses() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [editingBusiness, setEditingBusiness] = useState(null);
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -21,13 +23,13 @@ export default function Businesses() {
     try {
       setLoading(true);
       const { data } = await axiosClient.get("/businesses/");
-
-      // Flatten userId.username to top-level 'username' for Table
+      
       const flattened = data.map((biz) => ({
         ...biz,
-        username: biz.userId?.username || "-", // handle nullable userId
+        username: biz.userId?.username || "-",
+        status: biz.isActive ? "Active" : "Inactive",
+        reg_date: formatDateWithDay(biz.registration_date),
       }));
-
       setBusinesses(flattened);
     } catch (error) {
       console.error("Failed to load businesses:", error);
@@ -37,13 +39,21 @@ export default function Businesses() {
     }
   };
 
-  const handleAddBusiness = async (formData) => {
+  const handleAddOrUpdateBusiness = async (formData) => {
     try {
-      await axiosClient.post("/businesses/", formData);
+      if (editingBusiness) {
+        // 🟢 Update existing
+        await axiosClient.put(`/businesses/${editingBusiness._id}`, formData);
+      } else {
+        // 🟢 Create new
+        await axiosClient.post("/businesses/", formData);
+      }
       await loadBusinesses();
+      setIsModalOpen(false);
+      setEditingBusiness(null);
     } catch (error) {
-      console.error("Failed to create business:", error);
-      alert(error.response?.data?.message || "Failed to create business");
+      console.error("Failed to save business:", error);
+      alert(error.response?.data?.message || "Failed to save business");
     }
   };
 
@@ -58,28 +68,26 @@ export default function Businesses() {
     }
   };
 
-  // Table columns
+  const handleEdit = (biz) => {
+    setEditingBusiness(biz);
+    setIsModalOpen(true);
+  };
+
   const columns = [
     { label: "#", render: (_, i) => i + 1, width: "60px" },
     { label: "Business Name", field: "name" },
     { label: "Owner", field: "owner" },
-    { label: "Username", field: "username" }, // use flattened username
+    { label: "Username", field: "username" },
     { label: "Phone No.", field: "phone_no" },
-    {
-      label: "Registration Date",
-      render: (row) =>
-        row.registration_date
-          ? new Date(row.registration_date).toLocaleDateString()
-          : "-",
-    },
+    { label: "Registration Date", field: "reg_date" },
     { label: "Type", field: "type" },
     { label: "Price", field: "price" },
+    { label: "Status", field: "status" },
   ];
 
-  // Context menu items
   const contextMenuItems = [
     { label: "View Details", onClick: (biz) => setSelectedBusiness(biz) },
-    { label: "Edit", onClick: (biz) => alert(`Edit: ${biz.name}`) },
+    { label: "Edit", onClick: handleEdit },
     { label: "Delete", onClick: handleDelete, danger: true },
   ];
 
@@ -88,7 +96,14 @@ export default function Businesses() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Businesses</h1>
-        <Button onClick={() => setIsCreateModalOpen(true)}>Add Business</Button>
+        <Button
+          onClick={() => {
+            setEditingBusiness(null);
+            setIsModalOpen(true);
+          }}
+        >
+          Add Business
+        </Button>
       </div>
 
       {/* Table */}
@@ -102,10 +117,14 @@ export default function Businesses() {
 
       {/* Modals */}
       <AnimatePresence>
-        {isCreateModalOpen && (
+        {isModalOpen && (
           <AddBusinessModal
-            onClose={() => setIsCreateModalOpen(false)}
-            onSave={handleAddBusiness}
+            onClose={() => {
+              setIsModalOpen(false);
+              setEditingBusiness(null);
+            }}
+            onSave={handleAddOrUpdateBusiness}
+            initialData={editingBusiness} // 👈 prefill data
           />
         )}
 
@@ -113,6 +132,7 @@ export default function Businesses() {
           <BusinessDetailsModal
             business={selectedBusiness}
             onClose={() => setSelectedBusiness(null)}
+            onEdit={handleEdit} // 👈 pass edit handler to modal too
           />
         )}
       </AnimatePresence>

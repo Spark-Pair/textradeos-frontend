@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "../Modal";
 import Input from "../Input";
 import Select from "../Select";
 import Button from "../Button";
 
-export default function AddBusinessModal({ onClose, onSave }) {
+export default function AddBusinessModal({ onClose, onSave, initialData }) {
   const [form, setForm] = useState({
     name: "",
     owner: "",
@@ -17,6 +17,24 @@ export default function AddBusinessModal({ onClose, onSave }) {
   });
 
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      // Fill form for editing
+      setForm({
+        name: initialData.name || "",
+        owner: initialData.owner || "",
+        username: initialData.username || "",
+        password: "", // keep blank for security
+        phone_no: initialData.phone_no || "",
+        registration_date: initialData.registration_date
+          ? initialData.registration_date.split("T")[0]
+          : "",
+        price: initialData.price || "",
+        type: initialData.type || "",
+      });
+    }
+  }, [initialData]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -41,8 +59,12 @@ export default function AddBusinessModal({ onClose, onSave }) {
   };
 
   return (
-    <Modal title="Add Business" onClose={onClose} size="2xl">
-      <form onSubmit={handleSubmit} className="">
+    <Modal
+      title={initialData ? "Edit Business" : "Add Business"}
+      onClose={onClose}
+      size="2xl"
+    >
+      <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Input
             label="Business Name"
@@ -72,10 +94,10 @@ export default function AddBusinessModal({ onClose, onSave }) {
           <Input
             label="Password"
             name="password"
+            type="password"
             value={form.password}
             onChange={handleChange}
-            placeholder="Enter password"
-            required
+            placeholder={initialData ? "Leave blank to keep current" : "Enter password"}
           />
           <Input
             label="Phone No."
@@ -112,7 +134,11 @@ export default function AddBusinessModal({ onClose, onSave }) {
         </div>
 
         <Button type="submit" className="w-full" disabled={saving}>
-          {saving ? "Saving..." : "Save Business"}
+          {saving
+            ? "Saving..."
+            : initialData
+            ? "Update Business"
+            : "Save Business"}
         </Button>
       </form>
     </Modal>
