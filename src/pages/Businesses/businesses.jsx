@@ -90,6 +90,17 @@ export default function Businesses() {
     { label: "Delete", onClick: (row) => console.log("Delete:", row), danger: true },
   ];
 
+  const handleToggleStatus = async (biz) => {
+    setSelectedBusiness(null)
+    try {
+      await axiosClient.patch(`/businesses/${biz._id}/toggle`);
+      await loadBusinesses();
+    } catch (error) {
+      console.error("Failed change status:", error);
+      alert("Failed change status");
+    }
+  };
+
   return (
     <div className="w-full h-full overflow-hidden grid grid-rows-[auto_1fr] gap-4 relative">
       {/* Header */}
@@ -131,7 +142,8 @@ export default function Businesses() {
           <BusinessDetailsModal
             business={selectedBusiness}
             onClose={() => setSelectedBusiness(null)}
-            onEdit={handleEdit} // 👈 pass edit handler to modal too
+            onEdit={handleEdit}
+            onToggleStatus={handleToggleStatus}
           />
         )}
       </AnimatePresence>
