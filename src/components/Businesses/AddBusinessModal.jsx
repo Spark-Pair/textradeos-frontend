@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { X } from "lucide-react";
 import Input from "../Input";
 import Button from "../Button";
 import Modal from "../Modal";
+import Select from "../Select";
 
 export default function AddBusinessModal({ onClose }) {
   const [form, setForm] = useState({
@@ -10,7 +10,7 @@ export default function AddBusinessModal({ onClose }) {
     owner: "",
     username: "",
     password: "",
-    contact: "",
+    phone_no: "",
     joining_date: "",
     price: "",
     type: "",
@@ -18,6 +18,10 @@ export default function AddBusinessModal({ onClose }) {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSelectChange = (value) => {
+    setForm({ ...form, type: value });
   };
 
   const handleSubmit = (e) => {
@@ -70,12 +74,12 @@ export default function AddBusinessModal({ onClose }) {
           />
 
           <Input
-            label="Contact Number"
-            name="contact"
+            label="Phone No."
+            name="phone_no"
             type="number"
-            value={form.contact}
+            value={form.phone_no}
             onChange={handleChange}
-            placeholder="Enter contact number"
+            placeholder="Enter phone no."
           />
 
           <Input
@@ -97,13 +101,18 @@ export default function AddBusinessModal({ onClose }) {
             placeholder="Enter price"
           />
 
-          <Input
-            label="Type"
-            name="type"
-            value={form.type}
-            onChange={handleChange}
-            placeholder="Enter type"
-          />
+          <div>
+            <Select
+              label="Type"
+              options={[
+                { value: "monthly", label: "Monthly" },
+                { value: "yearly", label: "Yearly" },
+              ]}
+              value={form.type}
+              onChange={handleSelectChange}
+              placeholder="Select type"
+            />
+          </div>
         </div>
 
         <Button type="submit" className="w-full">

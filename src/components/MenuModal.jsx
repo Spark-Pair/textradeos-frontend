@@ -7,15 +7,6 @@ import Modal from "./Modal";
 export default function MenuModal({ onClose }) {
   const navigate = useNavigate();
 
-  // ✅ Handle Escape key press
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
-
   // ✅ Handle navigation and close modal
   const handleNavigate = useCallback(
     (path) => {
