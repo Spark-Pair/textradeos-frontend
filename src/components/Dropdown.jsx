@@ -27,7 +27,7 @@ export default function Dropdown({ children, title, icon }) {
 
   return (
     <div className="relative" ref={menuRef}>
-      <Button onClick={() => setOpen(!open)} variant="border-btn">
+      <Button onClick={() => setOpen(!open)} variant="normal-btn">
         {icon}
       </Button>
 
@@ -38,7 +38,7 @@ export default function Dropdown({ children, title, icon }) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-14 right-0 z-50 bg-[#f8fbfb] shadow-md border border-gray-300 rounded-xl p-2 w-52"
+            className="absolute bottom-14 right-1/2 translate-x-1/2 z-50 bg-[#f8fbfb] shadow-md border border-gray-300 rounded-xl p-1.5 w-52"
           >
             { title && (
               <>
