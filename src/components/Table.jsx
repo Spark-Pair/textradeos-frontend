@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 /**
  * Reusable Table Component
  * Props:
- * - columns: [{ label, field?, render?, width?, className? }]
+ * - columns: [{ label, field?, render?, width?, align?, className? }]
  * - data: array of objects
  * - onRowClick: function(row)
  * - contextMenuItems: [{ label, onClick(row), danger? }]
@@ -35,9 +35,18 @@ export default function Table({
   }, []);
 
   // Column widths
-  const gridTemplateColumns = columns
-    .map((col) => col.width || "1fr")
-    .join(" ");
+  const gridTemplateColumns = columns.map(col => col.width || "1fr").join(" ");
+
+  const getAlignClass = (align) => {
+    switch (align) {
+      case "center":
+        return "text-center";
+      case "right":
+        return "text-right";
+      default:
+        return "text-left";
+    }
+  };
 
   return (
     <div className="relative border border-gray-300 rounded-2xl p-1 shadow-sm grid grid-rows-[auto_1fr] overflow-hidden text-nowrap bg-white">
@@ -47,7 +56,10 @@ export default function Table({
         style={{ gridTemplateColumns }}
       >
         {columns.map((col, idx) => (
-          <div key={idx} className={`truncate ${col.className || ""}`}>
+          <div
+            key={idx}
+            className={`truncate ${getAlignClass(col.align)} ${col.className || ""}`}
+          >
             {col.label}
           </div>
         ))}
@@ -71,7 +83,10 @@ export default function Table({
               style={{ gridTemplateColumns }}
             >
               {columns.map((col, colIndex) => (
-                <div key={colIndex} className="truncate">
+                <div
+                  key={colIndex}
+                  className={`truncate ${getAlignClass(col.align)} ${col.className || ""}`}
+                >
                   {typeof col.render === "function"
                     ? col.render(row, rowIndex)
                     : row[col.field]}

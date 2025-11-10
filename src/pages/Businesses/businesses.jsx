@@ -77,11 +77,11 @@ export default function Businesses() {
     { label: "#", render: (_, i) => i + 1, width: "40px" },
     { label: "Business Name", field: "name", width: "auto" },
     { label: "Owner", field: "owner", width: "12%" },
-    { label: "Phone", field: "phone_no", width: "15%" },
-    { label: "Registration Date", field: "reg_date", width: "18%", },
-    { label: "Type", field: "type", width: "10%" },
-    { label: "Price", field: "price", width: "10%" },
-    { label: "Status", field: "status", width: "10%" },
+    { label: "Phone", field: "phone_no", width: "15%", align: "center" },
+    { label: "Registration Date", field: "reg_date", width: "18%", align: "center" },
+    { label: "Type", field: "type", width: "10%", align: "center",},
+    { label: "Price", field: "price", width: "10%", align: "center",},
+    { label: "Status", field: "status", width: "10%", align: "center" },
   ];
 
   const contextMenuItems = [
