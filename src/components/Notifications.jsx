@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useSocket } from "../context/SocketContext"; // ✅ import socket context
 
 function Notifications() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const panelRef = useRef(null);
+  const socket = useSocket();
 
-  // ✅ Close when clicking outside
+  // ✅ Handle click outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (panelRef.current && !panelRef.current.contains(event.target)) {
@@ -18,43 +21,40 @@ function Notifications() {
       document.removeEventListener("mousedown", handleClickOutside);
     }
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isNotificationOpen]);
 
-  // ✅ Example Notifications Data
-  const notifications = [
-    {
-      id: 1,
-      type: "info",
-      title: "New update available",
-      message: "Version 1.2.3 is ready to install.",
-      button: { label: "Update", action: () => alert("Updating...") },
-    },
-    {
-      id: 2,
-      type: "success",
-      title: "Backup completed",
-      message: "Your system backup finished successfully.",
-    },
-    {
-      id: 3,
-      type: "warning",
-      title: "Low disk space",
-      message: "Only 1.5 GB remaining on drive C:",
-      button: { label: "Free up space", action: () => alert("Cleaning...") },
-    },
-    {
-      id: 4,
-      type: "error",
-      title: "Sync failed",
-      message: "Could not connect to server. Try again later.",
-      button: { label: "Retry", action: () => alert("Retrying...") },
-    },
-  ];
+  // ✅ Listen for real-time notifications from backend
+  useEffect(() => {
+    if (!socket) return;
 
-  // ✅ Variant style helper
+    socket.on("new-notification", (data) => {
+      setNotifications((prev) => [
+        { id: Date.now(), ...data },
+        ...prev.slice(0, 20), // limit to last 20
+      ]);
+    });
+
+    return () => socket.off("new-notification");
+  }, [socket]);
+
+  // ✅ Remove notification
+  function removeNotification(id) {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }
+
+  // ✅ Send test notification (for dev)
+  function sendTestNotification() {
+    if (!socket) return;
+    socket.emit("send-notification", {
+      type: "success",
+      title: "Hello from Frontend",
+      message: "This notification was sent via Socket.IO",
+      button: { label: "Cool!", action: () => alert("Nice!") },
+    });
+  }
+
+  // ✅ Variant styles
   const variantStyles = {
     info: "bg-blue-50 border-blue-300 text-blue-800",
     success: "bg-green-50 border-green-300 text-green-800",
@@ -82,22 +82,44 @@ function Notifications() {
         }`}
       >
         <div className="w-full h-full bg-[#f8fbfb] drop-shadow-md border border-r-0 border-gray-300 rounded-lg flex flex-col">
-          <div className="flex justify-between items-center px-2 py-3 border-b border-gray-200">
+          {/* Header */}
+          <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200">
             <h2 className="text-lg font-semibold">Notifications</h2>
-            <button
-              className="text-gray-500 hover:text-gray-700"
-              onClick={() => setIsNotificationOpen(false)}
-            >
-              ✕
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={sendTestNotification}
+                className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded-md border border-blue-300"
+              >
+                Test
+              </button>
+              <button
+                className="text-gray-500 hover:text-gray-700"
+                onClick={() => setIsNotificationOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-3 p-2">
+          {/* Notification list */}
+          <div className="flex-1 overflow-y-auto space-y-3 p-3">
+            {notifications.length === 0 && (
+              <div className="text-sm text-gray-500 text-center mt-5">
+                No notifications yet
+              </div>
+            )}
+
             {notifications.map((n) => (
               <div
                 key={n.id}
-                className={`border rounded-lg p-3 ${variantStyles[n.type]} transition-all duration-300`}
+                className={`border rounded-lg p-3 relative ${variantStyles[n.type]} transition-all duration-300`}
               >
+                <button
+                  onClick={() => removeNotification(n.id)}
+                  className="absolute top-2 right-2 text-xs text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
                 <div className="font-semibold text-sm">{n.title}</div>
                 <div className="text-xs mt-1">{n.message}</div>
                 {n.button && (
