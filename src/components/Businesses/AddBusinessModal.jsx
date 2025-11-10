@@ -11,7 +11,7 @@ export default function AddBusinessModal({ onClose }) {
     username: "",
     password: "",
     phone_no: "",
-    joining_date: "",
+    registration_date: "",
     price: "",
     type: "",
   });
@@ -83,12 +83,12 @@ export default function AddBusinessModal({ onClose }) {
           />
 
           <Input
-            label="Joining Date"
-            name="joining_date"
+            label="Registration Date"
+            name="registration_date"
             type="date"
-            value={form.joining_date}
+            value={form.registration_date}
             onChange={handleChange}
-            placeholder="Enter joining date"
+            placeholder="Enter registration date"
           />
 
           <Input
