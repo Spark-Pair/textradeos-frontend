@@ -7,7 +7,7 @@ export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:5000"); // 👈 change to your backend URL
+    const newSocket = io(import.meta.env.VITE_BACKEND_URL); // 👈 change to your backend URL
     setSocket(newSocket);
 
     return () => newSocket.close();
