@@ -18,15 +18,6 @@ export default function DeveloperDashboard() {
         <p className="text-gray-700 mb-4">
           Welcome, <strong>{user?.name}</strong>
         </p>
-
-        <Button
-          onClick={async () => {
-            await logout(); // 👈 wait for API call
-            addToast("Logout Successfully!", "success");
-          }}
-        >
-          Logout
-        </Button>
       </div>
     </div>
   );
