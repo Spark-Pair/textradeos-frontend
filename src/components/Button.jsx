@@ -21,7 +21,7 @@ export default function Button({
       break;
 
     case "normal-btn":
-      styles = `${active ? 'bg-[#127475]/15' : 'bg-[#f8fbfb]'} text-[#0c5f60] p-3 rounded-xl flex items-center gap-2`;
+      styles = `${active ? 'active' : ''} text-[#0c5f60] p-3 rounded-xl flex items-center gap-2`;
       break;
 
     default:

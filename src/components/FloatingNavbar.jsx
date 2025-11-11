@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "./Button";
+import SlidingButtons from "./SlidingButtons";
 import { Building2, LayoutDashboard, Menu, User, Users } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Dropdown from "./Dropdown";
@@ -27,38 +28,40 @@ function FloatingNavbar({ onMenuClick }) {
 
       <div className="w-px h-5 bg-gray-300" />
 
-      {/* 🔹 Dashboard – accessible to both developer and user */}
-      {hasRole(["developer", "user"]) && (
-        <Button
-          variant="normal-btn"
-          active={currentPath === "/dashboard"}
-          onClick={() => navigate("/dashboard")}
-        >
-          <LayoutDashboard size={20} />
-        </Button>
-      )}
+      <SlidingButtons>
+        {/* 🔹 Dashboard – accessible to both developer and user */}
+        {hasRole(["developer", "user"]) && (
+          <Button
+            variant="normal-btn"
+            active={currentPath === "/dashboard"}
+            onClick={() => navigate("/dashboard")}
+          >
+            <LayoutDashboard size={20} />
+          </Button>
+        )}
 
-      {/* 🔹 Businesses – developer only */}
-      {hasRole(["developer"]) && (
-        <Button
-          variant="normal-btn"
-          active={currentPath === "/businesses"}
-          onClick={() => navigate("/businesses")}
-        >
-          <Building2 size={20} />
-        </Button>
-      )}
+        {/* 🔹 Businesses – developer only */}
+        {hasRole(["developer"]) && (
+          <Button
+            variant="normal-btn"
+            active={currentPath === "/businesses"}
+            onClick={() => navigate("/businesses")}
+          >
+            <Building2 size={20} />
+          </Button>
+        )}
 
-      {/* 🔹 Customers – user only */}
-      {hasRole(["user"]) && (
-        <Button
-          variant="normal-btn"
-          active={currentPath === "/customers"}
-          onClick={() => navigate("/customers")}
-        >
-          <Users size={20} />
-        </Button>
-      )}
+        {/* 🔹 Customers – user only */}
+        {hasRole(["user"]) && (
+          <Button
+            variant="normal-btn"
+            active={currentPath === "/customers"}
+            onClick={() => navigate("/customers")}
+          >
+            <Users size={20} />
+          </Button>
+        )}
+      </SlidingButtons>
 
       <div className="w-px h-5 bg-gray-300" />
 
