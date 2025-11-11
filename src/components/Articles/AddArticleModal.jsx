@@ -4,7 +4,7 @@ import Input from "../Input";
 import Select from "../Select";
 import Button from "../Button";
 
-export default function AddBusinessModal({ onClose, onSave, initialData }) {
+export default function AddCustomerModal({ onClose, onSave, initialData }) {
   const [form, setForm] = useState({
     name: "",
     owner: "",
@@ -52,7 +52,7 @@ export default function AddBusinessModal({ onClose, onSave, initialData }) {
       onClose();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to save business");
+      alert(err.response?.data?.message || "Failed to save customer");
     } finally {
       setSaving(false);
     }
@@ -60,19 +60,18 @@ export default function AddBusinessModal({ onClose, onSave, initialData }) {
 
   return (
     <Modal
-      title={initialData ? "Edit Business" : "Add Business"}
+      title={initialData ? "Edit Customer" : "Add Customer"}
       onClose={onClose}
       size="2xl"
     >
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Input
-            label="Business Name"
+            label="Customer Name"
             name="name"
             value={form.name}
             onChange={handleChange}
-            placeholder="Enter business name"
-            className="capitalize"
+            placeholder="Enter customer name"
             required
           />
           <Input
@@ -81,7 +80,6 @@ export default function AddBusinessModal({ onClose, onSave, initialData }) {
             value={form.owner}
             onChange={handleChange}
             placeholder="Enter owner name"
-            className="capitalize"
             required
           />
           <Input
@@ -104,7 +102,6 @@ export default function AddBusinessModal({ onClose, onSave, initialData }) {
           <Input
             label="Phone No."
             name="phone_no"
-            type="number"
             value={form.phone_no}
             onChange={handleChange}
             placeholder="Enter phone no."
@@ -119,8 +116,7 @@ export default function AddBusinessModal({ onClose, onSave, initialData }) {
           <Input
             label="Price"
             name="price"
-            type="amount"
-            allowDecimal
+            type="number"
             value={form.price}
             onChange={handleChange}
             placeholder="Enter price"
@@ -141,8 +137,8 @@ export default function AddBusinessModal({ onClose, onSave, initialData }) {
           {saving
             ? "Saving..."
             : initialData
-            ? "Update Business"
-            : "Save Business"}
+            ? "Update Customer"
+            : "Save Customer"}
         </Button>
       </form>
     </Modal>

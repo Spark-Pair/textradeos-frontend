@@ -9,6 +9,7 @@ import PrivateRoute from "./routes/PrivateRoute";
 import Layout from "./layouts/Layout";
 import Businesses from "./pages/Businesses/businesses";
 import Customers from "./pages/Customers/customers";
+import Articles from "./pages/Articles/articles";
 
 export default function App() {
   return (
@@ -42,6 +43,14 @@ export default function App() {
                   element={
                     <PrivateRoute roles={["user"]}>
                       <Customers />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/customers"
+                  element={
+                    <PrivateRoute roles={["user"]}>
+                      <Articles />
                     </PrivateRoute>
                   }
                 />
