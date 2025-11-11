@@ -1,26 +1,24 @@
-// Layout.jsx
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Notifications from "../components/Notifications";
 import MenuModal from "../components/MenuModal";
 import FloatingNavbar from "../components/FloatingNavbar";
-import Loader from "../components/Loader"; // ✅ import loader
+import Loader from "../components/Loader";
 
 export default function Layout({ children }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation(); // ✅ detect path changes
 
-  const handleMenuClick = () => {
-    setIsMenuOpen(true);
-  };
+  const handleMenuClick = () => setIsMenuOpen(true);
 
   return (
     <div className="h-screen flex flex-col bg-[#eef5f5] overflow-hidden relative">
       {/* 🔹 Animated Main Content */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={true}>
         <motion.div
-          key={window.location.pathname} // animates on route change
-          initial={{ opacity: 0, y: 20, scale: 0.97 }}
+          key={location.pathname}
+          initial={{ opacity: 0, y: 25, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           className="p-5 h-full overflow-y-auto"
         >
@@ -40,7 +38,7 @@ export default function Layout({ children }) {
       </AnimatePresence>
 
       {/* 🔹 Global Loader */}
-      <Loader />  {/* 🔹 add this here */}
+      <Loader />
     </div>
   );
 }
