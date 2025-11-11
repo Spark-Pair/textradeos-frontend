@@ -44,9 +44,9 @@ export default function SlidingButtons({ children }) {
           }}
           transition={{
             type: "spring",
-            stiffness: 800,
-            damping: 35,
-            mass: 0.3,
+            stiffness: 1200, // higher = faster response
+            damping: 30,     // lower = more responsive, higher = more rigid
+            mass: 0.2,       // smaller mass = quicker
           }}
         />
       )}
