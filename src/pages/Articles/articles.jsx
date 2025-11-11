@@ -59,17 +59,6 @@ export default function Articles() {
     }
   };
 
-  const handleDelete = async (biz) => {
-    if (!window.confirm(`Delete ${biz.name}?`)) return;
-    try {
-      await axiosClient.delete(`/articles/${biz._id}`);
-      await loadArticles();
-    } catch (error) {
-      console.error("Failed to delete article:", error);
-      alert("Failed to delete article");
-    }
-  };
-
   const handleEdit = (biz) => {
     setEditingArticle(biz);
     setIsModalOpen(true);
@@ -77,13 +66,13 @@ export default function Articles() {
 
   const columns = [
     { label: "#", render: (_, i) => i + 1, width: "40px" },
-    { label: "Article Name", field: "name", width: "auto" },
-    { label: "Owner", field: "owner", width: "12%" },
-    { label: "Phone", field: "phone_no", width: "15%", align: "center" },
-    { label: "Registration Date", field: "reg_date", width: "18%", align: "center" },
+    { label: "Article No.", field: "article_no", width: "12%" },
+    { label: "Season", field: "season", width: "12%" },
+    { label: "Size", field: "size", width: "15%", align: "center" },
+    { label: "Category", field: "category", width: "18%", align: "center" },
     { label: "Type", field: "type", width: "10%", align: "center",},
-    { label: "Price", field: "price", width: "10%", align: "center",},
-    { label: "Status", field: "status", width: "10%", align: "center" },
+    { label: "Purchase Price", field: "purchase_price", width: "10%", align: "center",},
+    { label: "Selling Price", field: "selling_price", width: "10%", align: "center" },
   ];
 
   const contextMenuItems = [

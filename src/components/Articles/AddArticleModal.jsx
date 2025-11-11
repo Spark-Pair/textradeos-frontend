@@ -4,34 +4,31 @@ import Input from "../Input";
 import Select from "../Select";
 import Button from "../Button";
 
-export default function AddCustomerModal({ onClose, onSave, initialData }) {
+export default function AddArticleModal({ onClose, onSave, initialData }) {
   const [form, setForm] = useState({
-    name: "",
-    owner: "",
-    username: "",
-    password: "",
-    phone_no: "",
-    registration_date: "",
-    price: "",
+    article_no: "",
+    season: "",
+    size: "",
+    category: "",
     type: "",
+    initial_stock: "",
+    purchase_price: "",
+    selling_price: "",
   });
 
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (initialData) {
-      // Fill form for editing
       setForm({
-        name: initialData.name || "",
-        owner: initialData.owner || "",
-        username: initialData.username || "",
-        password: "", // keep blank for security
-        phone_no: initialData.phone_no || "",
-        registration_date: initialData.registration_date
-          ? initialData.registration_date.split("T")[0]
-          : "",
-        price: initialData.price || "",
+        article_no: initialData.article_no || "",
+        season: initialData.season || "",
+        size: initialData.size || "",
+        category: initialData.category || "",
         type: initialData.type || "",
+        initial_stock: initialData.initial_stock || "",
+        purchase_price: initialData.purchase_price || "",
+        selling_price: initialData.selling_price || "",
       });
     }
   }, [initialData]);
@@ -40,19 +37,28 @@ export default function AddCustomerModal({ onClose, onSave, initialData }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSelectChange = (value) => {
-    setForm({ ...form, type: value });
+  const handleSelectChange = (name, value) => {
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setSaving(true);
-      await onSave(form);
+
+      const payload = {
+        ...form,
+        purchase_price: parseFloat(form.purchase_price) || 0,
+        selling_price: parseFloat(form.selling_price) || 0,
+      };
+
+      console.log(payload);
+
+      await onSave(payload);
       onClose();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to save customer");
+      alert(err.response?.data?.message || "Failed to save article");
     } finally {
       setSaving(false);
     }
@@ -60,76 +66,98 @@ export default function AddCustomerModal({ onClose, onSave, initialData }) {
 
   return (
     <Modal
-      title={initialData ? "Edit Customer" : "Add Customer"}
+      title={initialData ? "Edit Article" : "Add Article"}
       onClose={onClose}
       size="2xl"
     >
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Input
-            label="Customer Name"
-            name="name"
-            value={form.name}
+            label="Article No."
+            name="article_no"
+            value={form.article_no}
             onChange={handleChange}
-            placeholder="Enter customer name"
+            placeholder="Enter article no."
             required
           />
-          <Input
-            label="Owner Name"
-            name="owner"
-            value={form.owner}
-            onChange={handleChange}
-            placeholder="Enter owner name"
-            required
+
+          <Select
+            label="Season"
+            options={[
+              { value: "half", label: "Half" },
+              { value: "full", label: "Full" },
+              { value: "winter", label: "Winter" },
+            ]}
+            value={form.season}
+            onChange={(value) => handleSelectChange("season", value)}
+            placeholder="Select season"
           />
-          <Input
-            label="Username"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            placeholder="Enter username"
-            className="lowercase"
-            required
+
+          <Select
+            label="Size"
+            options={[
+              { value: "1-2", label: "1-2" },
+              { value: "s-m-l", label: "S-M-L" },
+              { value: "18-20-22", label: "18-20-22" },
+            ]}
+            value={form.size}
+            onChange={(value) => handleSelectChange("size", value)}
+            placeholder="Select size"
           />
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder={initialData ? "Leave blank to keep current" : "Enter password"}
+
+          <Select
+            label="Category"
+            options={[
+              { value: "1-pc", label: "1-Pc" },
+              { value: "2-pc", label: "2-Pc" },
+              { value: "3-pc", label: "3-Pc" },
+            ]}
+            value={form.category}
+            onChange={(value) => handleSelectChange("category", value)}
+            placeholder="Select category"
           />
-          <Input
-            label="Phone No."
-            name="phone_no"
-            value={form.phone_no}
-            onChange={handleChange}
-            placeholder="Enter phone no."
-          />
-          <Input
-            label="Registration Date"
-            name="registration_date"
-            type="date"
-            value={form.registration_date}
-            onChange={handleChange}
-          />
-          <Input
-            label="Price"
-            name="price"
-            type="number"
-            value={form.price}
-            onChange={handleChange}
-            placeholder="Enter price"
-          />
+
           <Select
             label="Type"
             options={[
-              { value: "monthly", label: "Monthly" },
-              { value: "yearly", label: "Yearly" },
+              { value: "baba", label: "Baba" },
+              { value: "baby", label: "Baby" },
             ]}
             value={form.type}
-            onChange={handleSelectChange}
+            onChange={(value) => handleSelectChange("type", value)}
             placeholder="Select type"
+          />
+
+          <Input
+            label="Initial Stock"
+            name="initial_stock"
+            type="number"
+            value={form.initial_stock}
+            onChange={handleChange}
+            placeholder="Enter initial stock"
+            required
+          />
+
+          <Input
+            label="Purchase Price"
+            name="purchase_price"
+            type="amount"
+            step="0.01"
+            value={form.purchase_price}
+            onChange={handleChange}
+            placeholder="Enter purchase price"
+            required
+          />
+
+          <Input
+            label="Selling Price"
+            name="selling_price"
+            type="amount"
+            step="0.01"
+            value={form.selling_price}
+            onChange={handleChange}
+            placeholder="Enter selling price"
+            required
           />
         </div>
 
@@ -137,8 +165,8 @@ export default function AddCustomerModal({ onClose, onSave, initialData }) {
           {saving
             ? "Saving..."
             : initialData
-            ? "Update Customer"
-            : "Save Customer"}
+            ? "Update Article"
+            : "Save Article"}
         </Button>
       </form>
     </Modal>
