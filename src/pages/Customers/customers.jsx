@@ -1,28 +1,28 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import Button from "../../components/Button";
-import AddBusinessModal from "../../components/Businesses/AddBusinessModal";
-import BusinessDetailsModal from "../../components/Businesses/BusinessDetailsModal";
+import AddCustomerModal from "../../components/Customers/AddCustomerModal";
+import CustomerDetailsModal from "../../components/Customers/CustomerDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
 import { formatDateWithDay } from "../../utils/dateFormatter";
 
-export default function Businesses() {
+export default function Customers() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState(null);
-  const [editingBusiness, setEditingBusiness] = useState(null);
-  const [businesses, setBusinesses] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [editingCustomer, setEditingCustomer] = useState(null);
+  const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    document.title = "Businesses | TexTradeOS";
-    loadBusinesses();
+    document.title = "Customers | TexTradeOS";
+    loadCustomers();
   }, []);
 
-  const loadBusinesses = async () => {
+  const loadCustomers = async () => {
     try {
       setLoading(true);
-      const { data } = await axiosClient.get("/businesses/");
+      const { data } = await axiosClient.get("/customers/");
       
       const flattened = data.map((biz) => ({
         ...biz,
@@ -30,52 +30,52 @@ export default function Businesses() {
         status: biz.isActive ? "Active" : "Inactive",
         reg_date: formatDateWithDay(biz.registration_date),
       }));
-      setBusinesses(flattened);
+      setCustomers(flattened);
     } catch (error) {
-      console.error("Failed to load businesses:", error);
-      alert("Failed to load businesses");
+      console.error("Failed to load customers:", error);
+      alert("Failed to load customers");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddOrUpdateBusiness = async (formData) => {
+  const handleAddOrUpdateCustomer = async (formData) => {
     try {
-      if (editingBusiness) {
+      if (editingCustomer) {
         // 🟢 Update existing
-        await axiosClient.put(`/businesses/${editingBusiness._id}`, formData);
+        await axiosClient.put(`/customers/${editingCustomer._id}`, formData);
       } else {
         // 🟢 Create new
-        await axiosClient.post("/businesses/", formData);
+        await axiosClient.post("/customers/", formData);
       }
-      await loadBusinesses();
+      await loadCustomers();
       setIsModalOpen(false);
-      setEditingBusiness(null);
+      setEditingCustomer(null);
     } catch (error) {
-      console.error("Failed to save business:", error);
-      alert(error.response?.data?.message || "Failed to save business");
+      console.error("Failed to save customer:", error);
+      alert(error.response?.data?.message || "Failed to save customer");
     }
   };
 
   const handleDelete = async (biz) => {
     if (!window.confirm(`Delete ${biz.name}?`)) return;
     try {
-      await axiosClient.delete(`/businesses/${biz._id}`);
-      await loadBusinesses();
+      await axiosClient.delete(`/customers/${biz._id}`);
+      await loadCustomers();
     } catch (error) {
-      console.error("Failed to delete business:", error);
-      alert("Failed to delete business");
+      console.error("Failed to delete customer:", error);
+      alert("Failed to delete customer");
     }
   };
 
   const handleEdit = (biz) => {
-    setEditingBusiness(biz);
+    setEditingCustomer(biz);
     setIsModalOpen(true);
   };
 
   const columns = [
     { label: "#", render: (_, i) => i + 1, width: "40px" },
-    { label: "Business Name", field: "name", width: "auto" },
+    { label: "Customer Name", field: "name", width: "auto" },
     { label: "Owner", field: "owner", width: "12%" },
     { label: "Phone", field: "phone_no", width: "15%", align: "center" },
     { label: "Registration Date", field: "reg_date", width: "18%", align: "center" },
@@ -91,10 +91,10 @@ export default function Businesses() {
   ];
 
   const handleToggleStatus = async (biz) => {
-    setSelectedBusiness(null)
+    setSelectedCustomer(null)
     try {
-      await axiosClient.patch(`/businesses/${biz._id}/toggle`);
-      await loadBusinesses();
+      await axiosClient.patch(`/customers/${biz._id}/toggle`);
+      await loadCustomers();
     } catch (error) {
       console.error("Failed change status:", error);
       alert("Failed change status");
@@ -105,22 +105,22 @@ export default function Businesses() {
     <div className="w-full h-full overflow-hidden grid grid-rows-[auto_1fr] gap-4 relative">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Businesses</h1>
+        <h1 className="text-3xl font-bold">Customers</h1>
         <Button
           onClick={() => {
-            setEditingBusiness(null);
+            setEditingCustomer(null);
             setIsModalOpen(true);
           }}
         >
-          Register Business
+          Register Customer
         </Button>
       </div>
 
       {/* Table */}
       <Table
         columns={columns}
-        data={businesses}
-        onRowClick={(biz) => setSelectedBusiness(biz)}
+        data={customers}
+        onRowClick={(biz) => setSelectedCustomer(biz)}
         contextMenuItems={contextMenuItems}
         loading={loading}
       />
@@ -128,20 +128,20 @@ export default function Businesses() {
       {/* Modals */}
       <AnimatePresence>
         {isModalOpen && (
-          <AddBusinessModal
+          <AddCustomerModal
             onClose={() => {
               setIsModalOpen(false);
-              setEditingBusiness(null);
+              setEditingCustomer(null);
             }}
-            onSave={handleAddOrUpdateBusiness}
-            initialData={editingBusiness} // 👈 prefill data
+            onSave={handleAddOrUpdateCustomer}
+            initialData={editingCustomer} // 👈 prefill data
           />
         )}
 
-        {selectedBusiness && (
-          <BusinessDetailsModal
-            business={selectedBusiness}
-            onClose={() => setSelectedBusiness(null)}
+        {selectedCustomer && (
+          <CustomerDetailsModal
+            customer={selectedCustomer}
+            onClose={() => setSelectedCustomer(null)}
             onEdit={handleEdit}
             onToggleStatus={handleToggleStatus}
           />

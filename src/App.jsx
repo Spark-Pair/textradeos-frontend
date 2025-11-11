@@ -3,10 +3,12 @@ import { AuthProvider } from "./context/AuthContext";
 import { SocketProvider } from "./context/SocketContext"; // 👈 import
 import { LoaderProvider } from "./context/LoaderContext";
 import Login from "./pages/Login";
-import DeveloperDashboard from "./pages/Developer/DeveloperDashboard";
+import Unauthorized from "./pages/Unauthorized";
+import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./routes/PrivateRoute";
 import Layout from "./layouts/Layout";
 import Businesses from "./pages/Businesses/businesses";
+import Customers from "./pages/Customers/customers";
 
 export default function App() {
   return (
@@ -17,20 +19,29 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
               <Route element={<Layout />}>
                 <Route
                   path="/dashboard"
                   element={
                     <PrivateRoute>
-                      <DeveloperDashboard />
+                      <Dashboard />
                     </PrivateRoute>
                   }
                 />
                 <Route
                   path="/businesses"
                   element={
-                    <PrivateRoute>
+                    <PrivateRoute roles={["developer"]}>
                       <Businesses />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/customers"
+                  element={
+                    <PrivateRoute roles={["user"]}>
+                      <Customers />
                     </PrivateRoute>
                   }
                 />

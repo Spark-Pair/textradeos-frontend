@@ -1,12 +1,8 @@
 import { useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useToast } from "../../context/ToastContext";
-import Button from "../../components/Button";
 
-export default function DeveloperDashboard() {
-  const { user, logout } = useAuth();
-  const { addToast } = useToast();
-
+export default function Dashboard() {
+  const { user } = useAuth();
   useEffect(() => {
     document.title = "Dashboard | TexTradeOS";
   });
