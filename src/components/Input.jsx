@@ -7,6 +7,7 @@ export default function Input({
   value,
   onChange,
   allowDecimal = false,
+  required = true,
   ...props
 }) {
   const inputRef = useRef(null);
@@ -70,7 +71,7 @@ export default function Input({
 
   return (
     <div>
-      {label && <label className="block mb-1 text-gray-800">{label}</label>}
+      {label && <label className="block mb-1 text-gray-800">{label} {required || '(Optional)'}</label>}
       <input
         {...props}
         ref={inputRef}

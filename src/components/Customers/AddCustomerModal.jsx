@@ -7,13 +7,9 @@ import Button from "../Button";
 export default function AddCustomerModal({ onClose, onSave, initialData }) {
   const [form, setForm] = useState({
     name: "",
-    owner: "",
-    username: "",
-    password: "",
+    person_name: "",
     phone_no: "",
-    registration_date: "",
-    price: "",
-    type: "",
+    address: "",
   });
 
   const [saving, setSaving] = useState(false);
@@ -23,15 +19,9 @@ export default function AddCustomerModal({ onClose, onSave, initialData }) {
       // Fill form for editing
       setForm({
         name: initialData.name || "",
-        owner: initialData.owner || "",
-        username: initialData.username || "",
-        password: "", // keep blank for security
+        person_name: initialData.person_name || "",
         phone_no: initialData.phone_no || "",
-        registration_date: initialData.registration_date
-          ? initialData.registration_date.split("T")[0]
-          : "",
-        price: initialData.price || "",
-        type: initialData.type || "",
+        address: initialData.address || "",
       });
     }
   }, [initialData]);
@@ -75,29 +65,12 @@ export default function AddCustomerModal({ onClose, onSave, initialData }) {
             required
           />
           <Input
-            label="Owner Name"
-            name="owner"
-            value={form.owner}
+            label="Person Name"
+            name="person_name"
+            value={form.person_name}
             onChange={handleChange}
-            placeholder="Enter owner name"
+            placeholder="Enter person name name"
             required
-          />
-          <Input
-            label="Username"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            placeholder="Enter username"
-            className="lowercase"
-            required
-          />
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder={initialData ? "Leave blank to keep current" : "Enter password"}
           />
           <Input
             label="Phone No."
@@ -107,29 +80,12 @@ export default function AddCustomerModal({ onClose, onSave, initialData }) {
             placeholder="Enter phone no."
           />
           <Input
-            label="Registration Date"
-            name="registration_date"
-            type="date"
-            value={form.registration_date}
+            label="Address"
+            name="address"
+            value={form.address}
             onChange={handleChange}
-          />
-          <Input
-            label="Price"
-            name="price"
-            type="number"
-            value={form.price}
-            onChange={handleChange}
-            placeholder="Enter price"
-          />
-          <Select
-            label="Type"
-            options={[
-              { value: "monthly", label: "Monthly" },
-              { value: "yearly", label: "Yearly" },
-            ]}
-            value={form.type}
-            onChange={handleSelectChange}
-            placeholder="Select type"
+            placeholder="Enter address"
+            required={false}
           />
         </div>
 

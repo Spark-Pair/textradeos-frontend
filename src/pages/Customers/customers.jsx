@@ -26,9 +26,7 @@ export default function Customers() {
       
       const flattened = data.map((biz) => ({
         ...biz,
-        username: biz.userId?.username || "-",
         status: biz.isActive ? "Active" : "Inactive",
-        reg_date: formatDateWithDay(biz.registration_date),
       }));
       setCustomers(flattened);
     } catch (error) {
@@ -76,11 +74,9 @@ export default function Customers() {
   const columns = [
     { label: "#", render: (_, i) => i + 1, width: "40px" },
     { label: "Customer Name", field: "name", width: "auto" },
-    { label: "Owner", field: "owner", width: "12%" },
+    { label: "Person Name", field: "person_name", width: "12%" },
     { label: "Phone", field: "phone_no", width: "15%", align: "center" },
-    { label: "Registration Date", field: "reg_date", width: "18%", align: "center" },
-    { label: "Type", field: "type", width: "10%", align: "center",},
-    { label: "Price", field: "price", width: "10%", align: "center",},
+    { label: "Address", field: "address", width: "18%", align: "center" },
     { label: "Status", field: "status", width: "10%", align: "center" },
   ];
 
