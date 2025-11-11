@@ -6,6 +6,7 @@ export default function Button({
   className = "",
   Icon,
   title,
+  active = false,
   ...props
 }) {
   let styles = "";
@@ -20,7 +21,7 @@ export default function Button({
       break;
 
     case "normal-btn":
-      styles = "bg-[#f8fbfb] hover:bg-[#127475]/15 text-[#0c5f60] p-3 rounded-xl flex items-center gap-2";
+      styles = `${active ? 'bg-[#127475]/15' : 'bg-[#f8fbfb]'} text-[#0c5f60] p-3 rounded-xl flex items-center gap-2`;
       break;
 
     default:
