@@ -31,11 +31,8 @@ function FloatingNavbar({ onMenuClick }) {
       {hasRole(["developer", "user"]) && (
         <Button
           variant="normal-btn"
-          onClick={() =>
-            navigate(
-              user?.role === "developer" ? "/developer/dashboard" : "/dashboard"
-            )
-          }
+          active={currentPath === "/dashboard"}
+          onClick={() => navigate("/dashboard")}
         >
           <LayoutDashboard size={20} />
         </Button>
@@ -45,6 +42,7 @@ function FloatingNavbar({ onMenuClick }) {
       {hasRole(["developer"]) && (
         <Button
           variant="normal-btn"
+          active={currentPath === "/businesses"}
           onClick={() => navigate("/businesses")}
         >
           <Building2 size={20} />
@@ -55,34 +53,12 @@ function FloatingNavbar({ onMenuClick }) {
       {hasRole(["user"]) && (
         <Button
           variant="normal-btn"
+          active={currentPath === "/customers"}
           onClick={() => navigate("/customers")}
         >
           <Users size={20} />
         </Button>
       )}
-      <Button
-        variant="normal-btn"
-        active={currentPath === "/dashboard"}
-        onClick={() => navigate("/dashboard")}
-      >
-        <LayoutDashboard size={20} />
-      </Button>
-
-      <Button
-        variant="normal-btn"
-        active={currentPath === "/businesses"}
-        onClick={() => navigate("/businesses")}
-      >
-        <Building2 size={20} />
-      </Button>
-
-      <Button
-        variant="normal-btn"
-        active={currentPath === "/customers"}
-        onClick={() => navigate("/customers")}
-      >
-        <Users size={20} />
-      </Button>
 
       <div className="w-px h-5 bg-gray-300" />
 
