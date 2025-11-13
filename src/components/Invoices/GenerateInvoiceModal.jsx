@@ -5,9 +5,9 @@ import Select from "../Select";
 import Button from "../Button";
 import { useToast } from "../../context/ToastContext";
 
-export default function AddArticleModal({ onClose, onSave, initialData }) {
+export default function AddInvoiceModal({ onClose, onSave, initialData }) {
   const [form, setForm] = useState({
-    article_no: "",
+    invoice_no: "",
     season: "",
     size: "",
     category: "",
@@ -18,12 +18,12 @@ export default function AddArticleModal({ onClose, onSave, initialData }) {
   });
 
   const [saving, setSaving] = useState(false);
-  const addToast = useToast();
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (initialData) {
       setForm({
-        article_no: initialData.article_no || "",
+        invoice_no: initialData.invoice_no || "",
         season: initialData.season || "",
         size: initialData.size || "",
         category: initialData.category || "",
@@ -58,7 +58,7 @@ export default function AddArticleModal({ onClose, onSave, initialData }) {
       onClose();
     } catch (err) {
       console.error(err);
-      addToast(err.response?.data?.message || "Failed to save article", "error");
+      addToast(err.response?.data?.message || "Failed to save invoice", "error");
     } finally {
       setSaving(false);
     }
@@ -66,18 +66,18 @@ export default function AddArticleModal({ onClose, onSave, initialData }) {
 
   return (
     <Modal
-      title={initialData ? "Edit Article" : "Add Article"}
+      title={initialData ? "Edit Invoice" : "Add Invoice"}
       onClose={onClose}
       size="2xl"
     >
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Input
-            label="Article No."
-            name="article_no"
-            value={form.article_no}
+            label="Invoice No."
+            name="invoice_no"
+            value={form.invoice_no}
             onChange={handleChange}
-            placeholder="Enter article no."
+            placeholder="Enter invoice no."
             required
           />
 
@@ -165,8 +165,8 @@ export default function AddArticleModal({ onClose, onSave, initialData }) {
           {saving
             ? "Saving..."
             : initialData
-            ? "Update Article"
-            : "Save Article"}
+            ? "Update Invoice"
+            : "Save Invoice"}
         </Button>
       </form>
     </Modal>

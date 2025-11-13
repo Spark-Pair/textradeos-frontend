@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Modal from "../Modal";
 import Input from "../Input";
-import Select from "../Select";
 import Button from "../Button";
+import { useToast } from "../../context/ToastContext";
 
 export default function AddCustomerModal({ onClose, onSave, initialData }) {
   const [form, setForm] = useState({
@@ -13,6 +13,7 @@ export default function AddCustomerModal({ onClose, onSave, initialData }) {
   });
 
   const [saving, setSaving] = useState(false);
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (initialData) {
@@ -42,7 +43,7 @@ export default function AddCustomerModal({ onClose, onSave, initialData }) {
       onClose();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to save customer");
+      addToast(err.response?.data?.message || "Failed to save customer", "error");
     } finally {
       setSaving(false);
     }

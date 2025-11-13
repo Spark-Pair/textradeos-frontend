@@ -1,75 +1,75 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import Button from "../../components/Button";
-import AddArticleModal from "../../components/Articles/AddArticleModal";
-import ArticleDetailsModal from "../../components/Articles/ArticleDetailsModal";
+import GenerateInvoiceModal from "../../components/Invoices/GenerateInvoiceModal";
+import InvoiceDetailsModal from "../../components/Invoices/InvoiceDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
 import { formatDateWithDay } from "../../utils/dateFormatter";
 import { useToast } from "../../context/ToastContext";
 
-export default function Articles() {
+export default function Invoices() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedArticle, setSelectedArticle] = useState(null);
-  const [editingArticle, setEditingArticle] = useState(null);
-  const [articles, setArticles] = useState([]);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [editingInvoice, setEditingInvoice] = useState(null);
+  const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
 
   useEffect(() => {
-    document.title = "Articles | TexTradeOS";
-    loadArticles();
+    document.title = "Invoices | TexTradeOS";
+    loadInvoices();
   }, []);
 
-  const loadArticles = async () => {
+  const loadInvoices = async () => {
     try {
       setLoading(true);
-      const { data } = await axiosClient.get("/articles/");
+      const { data } = await axiosClient.get("/invoices/");
       console.log(data);
       
-      const flattened = data.map((article) => ({
-        ...article,
-        username: article.userId?.username || "-",
-        status: article.isActive ? "Active" : "Inactive",
-        reg_date: formatDateWithDay(article.registration_date),
+      const flattened = data.map((invoice) => ({
+        ...invoice,
+        username: invoice.userId?.username || "-",
+        status: invoice.isActive ? "Active" : "Inactive",
+        reg_date: formatDateWithDay(invoice.registration_date),
       }));
-      setArticles(flattened);
+      setInvoices(flattened);
       console.log(flattened);
       
     } catch (error) {
-      console.error("Failed to load articles:", error);
-      addToast("Failed to load articles", "error");
+      console.error("Failed to load invoices:", error);
+      addToast("Failed to load invoices", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddOrUpdateArticle = async (formData) => {
+  const handleAddOrUpdateInvoice = async (formData) => {
     try {
-      if (editingArticle) {
+      if (editingInvoice) {
         // 🟢 Update existing
-        await axiosClient.put(`/articles/${editingArticle._id}`, formData);
+        await axiosClient.put(`/invoices/${editingInvoice._id}`, formData);
       } else {
         // 🟢 Create new
-        await axiosClient.post("/articles/", formData);
+        await axiosClient.post("/invoices/", formData);
       }
-      await loadArticles();
+      await loadInvoices();
       setIsModalOpen(false);
-      setEditingArticle(null);
+      setEditingInvoice(null);
     } catch (error) {
-      console.error("Failed to save article:", error);
-      addToast(error.response?.data?.message || "Failed to save article", "error");
+      console.error("Failed to save invoice:", error);
+      addToast(error.response?.data?.message || "Failed to save invoice", "error");
     }
   };
 
-  const handleEdit = (article) => {
-    setEditingArticle(article);
+  const handleEdit = (invoice) => {
+    setEditingInvoice(invoice);
     setIsModalOpen(true);
   };
 
   const columns = [
     { label: "#", render: (_, i) => i + 1, width: "40px" },
-    { label: "Article No.", field: "article_no", width: "12%" },
+    { label: "Invoice No.", field: "invoice_no", width: "12%" },
     { label: "Season", field: "season", width: "12%" },
     { label: "Size", field: "size", width: "15%", align: "center" },
     { label: "Category", field: "category", width: "18%", align: "center" },
@@ -80,7 +80,7 @@ export default function Articles() {
   ];
 
   const contextMenuItems = [
-    { label: "View Details", onClick: (article) => setSelectedArticle(article) },
+    { label: "View Details", onClick: (invoice) => setSelectedInvoice(invoice) },
     { label: "Edit", onClick: handleEdit },
   ];
 
@@ -88,22 +88,22 @@ export default function Articles() {
     <div className="w-full h-full overflow-hidden grid grid-rows-[auto_1fr] gap-4 relative">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Articles</h1>
+        <h1 className="text-3xl font-bold">Invoices</h1>
         <Button
           onClick={() => {
-            setEditingArticle(null);
+            setEditingInvoice(null);
             setIsModalOpen(true);
           }}
         >
-          Register Article
+          Register Invoice
         </Button>
       </div>
 
       {/* Table */}
       <Table
         columns={columns}
-        data={articles}
-        onRowClick={(article) => setSelectedArticle(article)}
+        data={invoices}
+        onRowClick={(invoice) => setSelectedInvoice(invoice)}
         contextMenuItems={contextMenuItems}
         loading={loading}
       />
@@ -111,20 +111,20 @@ export default function Articles() {
       {/* Modals */}
       <AnimatePresence>
         {isModalOpen && (
-          <AddArticleModal
+          <GenerateInvoiceModal
             onClose={() => {
               setIsModalOpen(false);
-              setEditingArticle(null);
+              setEditingInvoice(null);
             }}
-            onSave={handleAddOrUpdateArticle}
-            initialData={editingArticle} // 👈 prefill data
+            onSave={handleAddOrUpdateInvoice}
+            initialData={editingInvoice} // 👈 prefill data
           />
         )}
 
-        {selectedArticle && (
-          <ArticleDetailsModal
-            article={selectedArticle}
-            onClose={() => setSelectedArticle(null)}
+        {selectedInvoice && (
+          <InvoiceDetailsModal
+            invoice={selectedInvoice}
+            onClose={() => setSelectedInvoice(null)}
             onEdit={handleEdit}
           />
         )}

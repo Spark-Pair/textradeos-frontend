@@ -6,6 +6,7 @@ import BusinessDetailsModal from "../../components/Businesses/BusinessDetailsMod
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
 import { formatDateWithDay } from "../../utils/dateFormatter";
+import { useToast } from "../../context/ToastContext";
 
 export default function Businesses() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,6 +14,7 @@ export default function Businesses() {
   const [editingBusiness, setEditingBusiness] = useState(null);
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { addToast } = useToast();
 
   useEffect(() => {
     document.title = "Businesses | TexTradeOS";
@@ -33,7 +35,7 @@ export default function Businesses() {
       setBusinesses(flattened);
     } catch (error) {
       console.error("Failed to load businesses:", error);
-      alert("Failed to load businesses");
+      addToast("Failed to load businesses", "error");
     } finally {
       setLoading(false);
     }
@@ -53,7 +55,7 @@ export default function Businesses() {
       setEditingBusiness(null);
     } catch (error) {
       console.error("Failed to save business:", error);
-      alert(error.response?.data?.message || "Failed to save business");
+      addToast(error.response?.data?.message || "Failed to save business", "error");
     }
   };
 
@@ -64,7 +66,7 @@ export default function Businesses() {
       await loadBusinesses();
     } catch (error) {
       console.error("Failed to delete business:", error);
-      alert("Failed to delete business");
+      addToast("Failed to delete business", "error");
     }
   };
 
@@ -97,7 +99,7 @@ export default function Businesses() {
       await loadBusinesses();
     } catch (error) {
       console.error("Failed change status:", error);
-      alert("Failed change status");
+      addToast("Failed change status", "error");
     }
   };
 

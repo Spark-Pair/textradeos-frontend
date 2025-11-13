@@ -10,6 +10,7 @@ import Layout from "./layouts/Layout";
 import Businesses from "./pages/Businesses/businesses";
 import Customers from "./pages/Customers/customers";
 import Articles from "./pages/Articles/articles";
+import Invoices from "./pages/Invoices/invoices";
 
 export default function App() {
   return (
@@ -51,6 +52,14 @@ export default function App() {
                   element={
                     <PrivateRoute roles={["user"]}>
                       <Articles />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/invoices"
+                  element={
+                    <PrivateRoute roles={["user"]}>
+                      <Invoices />
                     </PrivateRoute>
                   }
                 />

@@ -6,6 +6,7 @@ import CustomerDetailsModal from "../../components/Customers/CustomerDetailsModa
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
 import { formatDateWithDay } from "../../utils/dateFormatter";
+import { useToast } from "../../context/ToastContext";
 
 export default function Customers() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,6 +14,7 @@ export default function Customers() {
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { addToast } = useToast();
 
   useEffect(() => {
     document.title = "Customers | TexTradeOS";
@@ -24,14 +26,14 @@ export default function Customers() {
       setLoading(true);
       const { data } = await axiosClient.get("/customers/");
       
-      const flattened = data.map((biz) => ({
-        ...biz,
-        status: biz.isActive ? "Active" : "Inactive",
+      const flattened = data.map((customer) => ({
+        ...customer,
+        status: customer.isActive ? "Active" : "Inactive",
       }));
       setCustomers(flattened);
     } catch (error) {
       console.error("Failed to load customers:", error);
-      alert("Failed to load customers");
+      addToast("Failed to load customers", "error");
     } finally {
       setLoading(false);
     }
@@ -51,23 +53,23 @@ export default function Customers() {
       setEditingCustomer(null);
     } catch (error) {
       console.error("Failed to save customer:", error);
-      alert(error.response?.data?.message || "Failed to save customer");
+      addToast(error.response?.data?.message || "Failed to save customer", "error");
     }
   };
 
-  const handleDelete = async (biz) => {
-    if (!window.confirm(`Delete ${biz.name}?`)) return;
+  const handleDelete = async (customer) => {
+    if (!window.confirm(`Delete ${customer.name}?`)) return;
     try {
-      await axiosClient.delete(`/customers/${biz._id}`);
+      await axiosClient.delete(`/customers/${customer._id}`);
       await loadCustomers();
     } catch (error) {
       console.error("Failed to delete customer:", error);
-      alert("Failed to delete customer");
+      addToast("Failed to delete customer", "error");
     }
   };
 
-  const handleEdit = (biz) => {
-    setEditingCustomer(biz);
+  const handleEdit = (customer) => {
+    setEditingCustomer(customer);
     setIsModalOpen(true);
   };
 
@@ -86,14 +88,14 @@ export default function Customers() {
     { label: "Delete", onClick: (row) => console.log("Delete:", row), danger: true },
   ];
 
-  const handleToggleStatus = async (biz) => {
+  const handleToggleStatus = async (customer) => {
     setSelectedCustomer(null)
     try {
-      await axiosClient.patch(`/customers/${biz._id}/toggle`);
+      await axiosClient.patch(`/customers/${customer._id}/toggle`);
       await loadCustomers();
     } catch (error) {
       console.error("Failed change status:", error);
-      alert("Failed change status");
+      addToast("Failed change status", "error");
     }
   };
 
@@ -116,7 +118,7 @@ export default function Customers() {
       <Table
         columns={columns}
         data={customers}
-        onRowClick={(biz) => setSelectedCustomer(biz)}
+        onRowClick={(customer) => setSelectedCustomer(customer)}
         contextMenuItems={contextMenuItems}
         loading={loading}
       />

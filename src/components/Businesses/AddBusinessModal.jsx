@@ -3,6 +3,7 @@ import Modal from "../Modal";
 import Input from "../Input";
 import Select from "../Select";
 import Button from "../Button";
+import { useToast } from "../../context/ToastContext";
 
 export default function AddBusinessModal({ onClose, onSave, initialData }) {
   const [form, setForm] = useState({
@@ -17,6 +18,7 @@ export default function AddBusinessModal({ onClose, onSave, initialData }) {
   });
 
   const [saving, setSaving] = useState(false);
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (initialData) {
@@ -52,7 +54,7 @@ export default function AddBusinessModal({ onClose, onSave, initialData }) {
       onClose();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to save business");
+      addToast(err.response?.data?.message || "Failed to save business", "error");
     } finally {
       setSaving(false);
     }
