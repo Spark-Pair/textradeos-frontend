@@ -37,7 +37,6 @@ export default function GenerateInvoiceModal({ onClose }) {
         reg_date: formatDateWithDay(article.registration_date),
       }));
       setArticles(flattened);
-      console.log(flattened);
       
     } catch (error) {
       console.error("Failed to load articles:", error);

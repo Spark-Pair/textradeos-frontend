@@ -1,6 +1,6 @@
 import Button from "./Button";
 import SlidingButtons from "./SlidingButtons";
-import { Building2, LayoutDashboard, Menu, ReceiptText, Shirt, User, Users } from "lucide-react";
+import { BanknoteArrowDown, Building2, LayoutDashboard, Menu, ReceiptText, Shirt, User, Users } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Dropdown from "./Dropdown";
 import { useAuth } from "../context/AuthContext";
@@ -80,6 +80,17 @@ function FloatingNavbar({ onMenuClick }) {
             onClick={() => navigate("/invoices")}
           >
             <ReceiptText size={20} />
+          </Button>
+        )}
+
+        {/* 🔹 Paymnet – user only */}
+        {hasRole(["user"]) && (
+          <Button
+            variant="normal-btn"
+            active={currentPath === "/payments"}
+            onClick={() => navigate("/payments")}
+          >
+            <BanknoteArrowDown size={20} />
           </Button>
         )}
       </SlidingButtons>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import Button from "../../components/Button";
 import AddCustomerModal from "../../components/Customers/AddCustomerModal";
+import AddPaymentModal from "../../components/Customers/AddPaymentModal";
 import CustomerDetailsModal from "../../components/Customers/CustomerDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
@@ -14,7 +15,9 @@ export default function Customers() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [invoicingCustomer, setInvoicingCustomer] = useState(null);
+  const [paymentCustomer, setPaymentCustomer] = useState(null);
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
@@ -61,20 +64,29 @@ export default function Customers() {
     }
   };
 
-  const handleDelete = async (customer) => {
-    if (!window.confirm(`Delete ${customer.name}?`)) return;
+  const handleAddCustomerPayment = async (formData) => {
+    console.log("Hello ", formData);
     try {
-      await axiosClient.delete(`/customers/${customer._id}`);
+      const { data } = await axiosClient.post("/payments/", formData);
       await loadCustomers();
+      setIsModalOpen(false);
+      setEditingCustomer(null);
+      addToast(data.message, "success");
     } catch (error) {
-      console.error("Failed to delete customer:", error);
-      addToast("Failed to delete customer", "error");
+      console.error("Failed to save customer:", error);
+
+      addToast(extractMongooseMessage(error.response?.data?.message) || "Failed to save customer", "error");
     }
   };
 
   const handleInvoice = (customer) => {
     setIsInvoiceModalOpen(true);
     setInvoicingCustomer(customer);
+  };
+
+  const handlePayment = (customer) => {
+    setIsPaymentModalOpen(true);
+    setPaymentCustomer(customer);
   };
 
   const handleEdit = (customer) => {
@@ -154,11 +166,23 @@ export default function Customers() {
           />
         )}
 
+        {isPaymentModalOpen && (
+          <AddPaymentModal
+            onClose={() => {
+              setIsPaymentModalOpen(false);
+              setPaymentCustomer(null);
+            }}
+            onSave={handleAddCustomerPayment}
+            selectedCustomer={paymentCustomer} // 👈 prefill data
+          />
+        )}
+
         {selectedCustomer && (
           <CustomerDetailsModal
             customer={selectedCustomer}
             onClose={() => setSelectedCustomer(null)}
             onInvoice={handleInvoice}
+            onPayment={handlePayment}
             onEdit={handleEdit}
             onToggleStatus={handleToggleStatus}
           />

@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from "react";
-import { X, Home, Settings, User, LogOut, Search, Building2, Users } from "lucide-react";
+import { Settings, Search, Building2, Users, LayoutDashboard } from "lucide-react";
 import NavItem from "./NavItem";
 import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
@@ -38,15 +38,9 @@ export default function MenuModal({ onClose }) {
         {/* Dashboard — visible to all */}
         {hasRole(["developer", "user"]) && (
           <NavItem
-            icon={<Home size={18} />}
+            icon={<LayoutDashboard size={18} />}
             label="Dashboard"
-            onClick={() =>
-              handleNavigate(
-                user?.role === "developer"
-                  ? "/developer/dashboard"
-                  : "/dashboard"
-              )
-            }
+            onClick={() => handleNavigate("/dashboard")}
           />
         )}
 

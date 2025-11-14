@@ -1,7 +1,7 @@
 import Modal from "../Modal";
 import Button from "../Button";
 
-export default function CustomerDetailsModal({ customer, onClose, onInvoice, onEdit, onToggleStatus }) {
+export default function CustomerDetailsModal({ customer, onClose, onInvoice, onPayment, onEdit, onToggleStatus }) {
   if (!customer) return null;
 
   const isActive = customer.status === "Active";
@@ -41,6 +41,16 @@ export default function CustomerDetailsModal({ customer, onClose, onInvoice, onE
           className="bg-green-600 hover:bg-green-700 text-white"
         >
           Invoice
+        </Button>
+
+        <Button
+          onClick={() => {
+            onClose();
+            onPayment(customer);
+          }}
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
+          Payment
         </Button>
 
         <Button

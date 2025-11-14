@@ -25,7 +25,6 @@ export default function Invoices() {
     try {
       setLoading(true);
       const { data } = await axiosClient.get("/invoices/");
-      console.log(data);
       
       const flattened = data.map((invoice) => ({
         ...invoice,
@@ -34,7 +33,6 @@ export default function Invoices() {
         reg_date: formatDateWithDay(invoice.registration_date),
       }));
       setInvoices(flattened);
-      console.log(flattened);
       
     } catch (error) {
       console.error("Failed to load invoices:", error);

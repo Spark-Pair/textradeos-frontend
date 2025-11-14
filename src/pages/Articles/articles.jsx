@@ -25,7 +25,6 @@ export default function Articles() {
     try {
       setLoading(true);
       const { data } = await axiosClient.get("/articles/");
-      console.log(data);
       
       const flattened = data.map((article) => ({
         ...article,
@@ -34,7 +33,6 @@ export default function Articles() {
         reg_date: formatDateWithDay(article.registration_date),
       }));
       setArticles(flattened);
-      console.log(flattened);
       
     } catch (error) {
       console.error("Failed to load articles:", error);
