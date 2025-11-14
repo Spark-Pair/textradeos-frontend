@@ -5,7 +5,7 @@ import GenerateInvoiceModal from "../../components/Invoices/GenerateInvoiceModal
 import InvoiceDetailsModal from "../../components/Invoices/InvoiceDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
-import { formatDateWithDay } from "../../utils/dateFormatter";
+import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
 
 export default function Invoices() {

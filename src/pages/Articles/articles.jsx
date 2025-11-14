@@ -5,7 +5,7 @@ import AddArticleModal from "../../components/Articles/AddArticleModal";
 import ArticleDetailsModal from "../../components/Articles/ArticleDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
-import { formatDateWithDay } from "../../utils/dateFormatter";
+import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
 
 export default function Articles() {

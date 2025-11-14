@@ -1,10 +1,3 @@
-// src/utils/dateFormatter.js
-
-/**
- * Format a date into "DD-MM-YYYY, Day" format
- * @param {string|Date} dateValue - Date string or Date object
- * @returns {string} - Formatted date like "01-01-2025, Wednesday"
- */
 export function formatDateWithDay(dateValue) {
   if (!dateValue) return "-";
 
@@ -23,3 +16,12 @@ export function formatDateWithDay(dateValue) {
 
   return `${formattedDate}, ${dayName}`;
 }
+
+export const extractMongooseMessage = (msg) => {
+  if (!msg) return null;
+
+  // Match last part after colon
+  const parts = msg.split(":");
+  return parts[parts.length - 1].trim();
+};
+

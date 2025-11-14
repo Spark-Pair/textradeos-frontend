@@ -5,7 +5,7 @@ import AddBusinessModal from "../../components/Businesses/AddBusinessModal";
 import BusinessDetailsModal from "../../components/Businesses/BusinessDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
-import { formatDateWithDay } from "../../utils/dateFormatter";
+import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
 
 export default function Businesses() {

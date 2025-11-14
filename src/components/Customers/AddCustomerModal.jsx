@@ -37,16 +37,9 @@ export default function AddCustomerModal({ onClose, onSave, initialData }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      setSaving(true);
-      await onSave(form);
-      onClose();
-    } catch (err) {
-      console.error(err);
-      addToast(err.response?.data?.message || "Failed to save customer", "error");
-    } finally {
-      setSaving(false);
-    }
+    setSaving(true);
+    await onSave(form);
+    onClose();
   };
 
   return (
