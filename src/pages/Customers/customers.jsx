@@ -35,6 +35,7 @@ export default function Customers() {
       const flattened = data.map((customer) => ({
         ...customer,
         status: customer.isActive ? "Active" : "Inactive",
+        address: customer.address || "-",
       }));
       setCustomers(flattened);
     } catch (error) {
@@ -102,6 +103,7 @@ export default function Customers() {
     { label: "Person Name", field: "person_name", width: "12%" },
     { label: "Phone", field: "phone_no", width: "15%", align: "center" },
     { label: "Address", field: "address", width: "18%", align: "center" },
+    { label: "Balance", field: "balance", width: "18%", align: "center" },
     { label: "Status", field: "status", width: "10%", align: "center" },
   ];
 
