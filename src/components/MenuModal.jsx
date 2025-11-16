@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState, useMemo } from "react";
 import { Search, Building2, Users, LayoutDashboard, Shirt, ReceiptText, BanknoteArrowDown } from "lucide-react";
 import NavItem from "./NavItem";
 import { useNavigate } from "react-router-dom";
@@ -9,12 +9,12 @@ export default function MenuModal({ onClose }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const searchRef = useRef(null);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     searchRef.current?.focus();
   }, []);
 
-  // ✅ Helper function
   const handleNavigate = useCallback(
     (path) => {
       navigate(path);
@@ -23,8 +23,55 @@ export default function MenuModal({ onClose }) {
     [navigate, onClose]
   );
 
-  // ✅ Role check shortcut
   const hasRole = (roles) => roles.includes(user?.role);
+
+  // List of all navigation items
+  const navItems = useMemo(
+    () => [
+      {
+        label: "Dashboard",
+        icon: <LayoutDashboard size={18} />,
+        roles: ["developer", "user"],
+        path: "/dashboard",
+      },
+      {
+        label: "Businesses",
+        icon: <Building2 size={18} />,
+        roles: ["developer"],
+        path: "/businesses",
+      },
+      {
+        label: "Customers",
+        icon: <Users size={18} />,
+        roles: ["user"],
+        path: "/customers",
+      },
+      {
+        label: "Articles",
+        icon: <Shirt size={18} />,
+        roles: ["user"],
+        path: "/articles",
+      },
+      {
+        label: "Invoices",
+        icon: <ReceiptText size={18} />,
+        roles: ["user"],
+        path: "/invoices",
+      },
+      {
+        label: "Payments",
+        icon: <BanknoteArrowDown size={18} />,
+        roles: ["user"],
+        path: "/payments",
+      },
+    ],
+    []
+  );
+
+  // Filter items based on role and search query
+  const filteredItems = navItems.filter(
+    (item) => hasRole(item.roles) && item.label.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
     <Modal title="Main Menu" onClose={onClose}>
@@ -34,66 +81,31 @@ export default function MenuModal({ onClose }) {
         <input
           ref={searchRef}
           type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
           placeholder="Search..."
           className="w-full pl-10 pr-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-[#127475] focus:border-transparent text-gray-700"
         />
       </div>
 
       {/* 🔹 Navigation */}
-      <div className="space-y-2">
-        {/* Dashboard — visible to all */}
-        {hasRole(["developer", "user"]) && (
-          <NavItem
-            icon={<LayoutDashboard size={18} />}
-            label="Dashboard"
-            onClick={() => handleNavigate("/dashboard")}
-          />
-        )}
-
-        {/* Businesses — developer only */}
-        {hasRole(["developer"]) && (
-          <NavItem
-            icon={<Building2 size={18} />}
-            label="Businesses"
-            onClick={() => handleNavigate("/businesses")}
-          />
-        )}
-
-        {/* Customers — user only */}
-        {hasRole(["user"]) && (
-          <NavItem
-            icon={<Users size={18} />}
-            label="Customers"
-            onClick={() => handleNavigate("/customers")}
-          />
-        )}
-
-        {/* Articles — user only */}
-        {hasRole(["user"]) && (
-          <NavItem
-            icon={<Shirt size={18} />}
-            label="Articles"
-            onClick={() => handleNavigate("/articles")}
-          />
-        )}
-
-        {/* Invoices — user only */}
-        {hasRole(["user"]) && (
-          <NavItem
-            icon={<ReceiptText size={18} />}
-            label="Invoices"
-            onClick={() => handleNavigate("/invoices")}
-          />
-        )}
-
-        {/* Payments — user only */}
-        {hasRole(["user"]) && (
-          <NavItem
-            icon={<BanknoteArrowDown size={18} />}
-            label="Payments"
-            onClick={() => handleNavigate("/payments")}
-          />
-        )}
+      <div className="h-60 overflow-y-auto">
+        <div className="space-y-2">
+          {filteredItems.length > 0 ? (
+            filteredItems.map((item) => (
+              <>
+                <NavItem
+                  key={item.label}
+                  icon={item.icon}
+                  label={item.label}
+                  onClick={() => handleNavigate(item.path)}
+                />
+              </>
+            ))
+          ) : (
+            <p className="text-gray-500 text-sm text-center">No results found</p>
+          )}
+        </div>
       </div>
     </Modal>
   );
