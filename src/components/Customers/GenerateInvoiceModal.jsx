@@ -12,39 +12,34 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
 
   const [loading, setLoading] = useState(false);
   const [articles, setArticles] = useState([]);
-
   const [selectedArticles, setSelectedArticles] = useState({});
   const [discount, setDiscount] = useState(0);
+  const [error, setError] = useState({}); // track quantity/discount errors
 
   /** ---------- CALCULATED TOTALS ---------- **/
   const grossAmount = Object.values(selectedArticles).reduce(
     (sum, item) => sum + item.selling_price * item.quantity,
     0
   );
+  const netAmount = grossAmount - grossAmount * (discount / 100);
 
-  const netAmount = grossAmount - (grossAmount * (discount / 100));
-
-  /** ---------- HANDLE CHECKBOX ---------- **/
-  const toggleArticle = (article, checked) => {
+  /** ---------- HANDLE CHECKBOX / ROW CLICK ---------- **/
+  const toggleArticle = (article) => {
     setSelectedArticles(prev => {
       const copy = { ...prev };
-
-      if (checked) {
-        copy[article._id] = {
-          ...article,
-          quantity: 1
-        };
-      } else {
-        delete copy[article._id];
-      }
-
+      if (copy[article._id]) delete copy[article._id];
+      else copy[article._id] = { ...article, quantity: 1 };
       return copy;
     });
   };
 
   /** ---------- HANDLE QUANTITY CHANGE ---------- **/
   const changeQuantity = (article, value) => {
-    const qty = Number(value) || 1;
+    let qty = Number(value) || 1;
+
+    // Clamp quantity to article stock
+    if (qty > article.stock) qty = article.stock;
+    if (qty < 1) qty = 1; // optional: minimum 1
 
     setSelectedArticles(prev => ({
       ...prev,
@@ -55,20 +50,26 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
     }));
   };
 
+  /** ---------- HANDLE DISCOUNT CHANGE ---------- **/
+  const handleDiscountChange = (value) => {
+    let val = Number(value) || 0;
+    if (val > 100) val = 100; // clamp
+    if (val < 0) val = 0;     // optional: clamp negative
+    setDiscount(val);
+  };
+
   /** ---------- LOAD ARTICLES ---------- **/
   const loadArticles = async () => {
     try {
       setLoading(true);
       const { data } = await axiosClient.get("/articles/");
-
       const flattened = data.map(a => ({
         ...a,
         reg_date: formatDateWithDay(a.registration_date),
       }));
-
       setArticles(flattened);
-    } catch (error) {
-      console.error("Failed to load articles:", error);
+    } catch (err) {
+      console.error("Failed to load articles:", err);
       addToast("Failed to load articles", "error");
     } finally {
       setLoading(false);
@@ -79,17 +80,17 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
     loadArticles();
   }, []);
 
-  /** ---------- TABLE COLUMNS WITH RENDER FUNCTIONS ---------- **/
+  /** ---------- TABLE COLUMNS ---------- **/
   const columns = [
     {
       label: "",
       width: "26px",
       middleAlign: "center",
-      render: (row) => (
+      render: row => (
         <input
           type="checkbox"
           checked={!!selectedArticles[row._id]}
-          onChange={(e) => toggleArticle(row, e.target.checked)}
+          readOnly
         />
       ),
     },
@@ -97,40 +98,48 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
       label: "Quantity",
       width: "15%",
       middleAlign: "center",
-      render: (row) => (
-        <input
-          type="number"
-          min="1"
-          disabled={!selectedArticles[row._id]}
-          value={selectedArticles[row._id]?.quantity || 1}
-          onChange={(e) => changeQuantity(row, e.target.value)}
-          className={`w-16 bg-[#f8fbfb] border border-gray-300 rounded-lg px-1.5 py-0.5 focus:outline-none text-gray-700 
-          ${!selectedArticles[row._id] ? "opacity-40 cursor-not-allowed" : ""}`}
-        />
-      ),
+      render: row => {
+        const selected = selectedArticles[row._id];
+        const hasError = error[row._id];
+        return (
+          <input
+            type="number"
+            min="1"
+            disabled={!selected}
+            value={selected?.quantity || 1}
+            onChange={e => changeQuantity(row, e.target.value)}
+            onClick={e => e.stopPropagation()} // ✅ prevent row toggle
+            className={`w-16 px-1.5 py-0.5 rounded-lg border focus:outline-none
+            ${!selected ? "opacity-40 cursor-not-allowed" : ""}
+            ${hasError ? "border-red-500 bg-red-50" : "border-gray-300 bg-[#f8fbfb]"}
+          `}
+          />
+        );
+      },
     },
     { label: "Article No.", field: "article_no", width: "30%", middleAlign: "center" },
     { label: "Selling Price", field: "selling_price", width: "15%", middleAlign: "center", align: "center" },
     { label: "Stock", field: "stock", width: "15%", middleAlign: "center", align: "center" },
   ];
 
+  /** ---------- GENERATE INVOICE ---------- **/
   const handleGenerate = async () => {
-    try {
-      if (Object.keys(selectedArticles).length === 0) {
-        return addToast("Select at least one article", "error");
-      }
+    if (Object.keys(selectedArticles).length === 0) {
+      return addToast("Select at least one article", "error");
+    }
 
-      // Convert selectedArticles object → array
+    if (Object.values(error).some(Boolean)) {
+      return addToast("Fix errors before generating invoice", "error");
+    }
+
+    try {
       const items = Object.values(selectedArticles).map(item => ({
         articleId: item._id,
         quantity: item.quantity,
       }));
 
-      // TEMP: later we'll add customer selection — for now use a dummy or selected customer
-      const customerId = invoicingCustomer?._id;
-
       const payload = {
-        customerId,
+        customerId: invoicingCustomer?._id,
         items,
         discount,
         grossAmount,
@@ -140,12 +149,15 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
       const { data } = await axiosClient.post("/invoices", payload);
 
       addToast("Invoice generated successfully", "success");
-      onClose(data); // close modal
-    } catch (error) {
-      console.error("Failed to generate invoice:", error);
-      addToast(error.response?.data?.message || "Failed to generate invoice", "error");
+      onClose(data);
+    } catch (err) {
+      console.error("Failed to generate invoice:", err);
+      addToast(err.response?.data?.message || "Failed to generate invoice", "error");
     }
   };
+
+  /** ---------- HANDLE ROW CLICK ---------- **/
+  const handleRowClick = (article) => toggleArticle(article);
 
   return (
     <Modal title={`Generate Invoice - ${invoicingCustomer?.name}`} onClose={onClose} size="4xl">
@@ -155,6 +167,7 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
         loading={loading}
         height="60vh"
         bottomGap={false}
+        onRowClick={handleRowClick} // ✅ clicking row toggles checkbox
       />
 
       {/* Totals Section */}
@@ -171,8 +184,9 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
             label="Discount (%)"
             type="labelInBox"
             value={discount}
-            onChange={(e) => setDiscount(Number(e.target.value))}
+            onChange={e => handleDiscountChange(e.target.value)}
             placeholder="0"
+            className={error.discount ? "border-red-500 bg-red-50" : ""}
           />
 
           <Input
@@ -182,10 +196,14 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
             readOnly
           />
         </div>
+
         <div className="generate-btn flex">
           <Button
             onClick={handleGenerate}
-            disabled={Object.keys(selectedArticles).length === 0}
+            disabled={
+              Object.keys(selectedArticles).length === 0 ||
+              Object.values(error).some(Boolean)
+            }
           >
             Generate
           </Button>
