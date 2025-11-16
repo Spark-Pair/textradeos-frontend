@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from "react";
-import { Settings, Search, Building2, Users, LayoutDashboard } from "lucide-react";
+import { useEffect, useCallback, useRef } from "react";
+import { Search, Building2, Users, LayoutDashboard, Shirt, ReceiptText, BanknoteArrowDown } from "lucide-react";
 import NavItem from "./NavItem";
 import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
@@ -8,6 +8,11 @@ import { useAuth } from "../context/AuthContext";
 export default function MenuModal({ onClose }) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    searchRef.current?.focus();
+  }, []);
 
   // ✅ Helper function
   const handleNavigate = useCallback(
@@ -27,6 +32,7 @@ export default function MenuModal({ onClose }) {
       <div className="relative mb-4">
         <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
         <input
+          ref={searchRef}
           type="text"
           placeholder="Search..."
           className="w-full pl-10 pr-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-[#127475] focus:border-transparent text-gray-700"
@@ -62,12 +68,30 @@ export default function MenuModal({ onClose }) {
           />
         )}
 
-        {/* Optional Settings (both) */}
-        {hasRole(["developer", "user"]) && (
+        {/* Articles — user only */}
+        {hasRole(["user"]) && (
           <NavItem
-            icon={<Settings size={18} />}
-            label="Settings"
-            onClick={() => handleNavigate("/settings")}
+            icon={<Shirt size={18} />}
+            label="Articles"
+            onClick={() => handleNavigate("/articles")}
+          />
+        )}
+
+        {/* Invoices — user only */}
+        {hasRole(["user"]) && (
+          <NavItem
+            icon={<ReceiptText size={18} />}
+            label="Invoices"
+            onClick={() => handleNavigate("/invoices")}
+          />
+        )}
+
+        {/* Payments — user only */}
+        {hasRole(["user"]) && (
+          <NavItem
+            icon={<BanknoteArrowDown size={18} />}
+            label="Payments"
+            onClick={() => handleNavigate("/payments")}
           />
         )}
       </div>
