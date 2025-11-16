@@ -7,7 +7,7 @@ export default function CustomerDetailsModal({ customer, onClose, onInvoice, onP
   const isActive = customer.status === "Active";
 
   return (
-    <Modal title={customer.name} onClose={onClose} size="md">
+    <Modal title={customer.name} onClose={onClose} size="lg">
       <div className="space-y-2 text-gray-700">
         <p><strong>Owner:</strong> {customer.owner}</p>
         <p><strong>Username:</strong> {customer.username}</p>

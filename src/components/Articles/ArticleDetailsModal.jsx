@@ -1,7 +1,7 @@
 import Modal from "../Modal";
 import Button from "../Button";
 
-export default function ArticleDetailsModal({ article, onClose, onEdit, onToggleStatus }) {
+export default function ArticleDetailsModal({ article, onClose, onEdit, onAddStock }) {
   if (!article) return null;
 
   const isActive = article.status === "Active";
@@ -19,6 +19,16 @@ export default function ArticleDetailsModal({ article, onClose, onEdit, onToggle
       </div>
 
       <div className="mt-6 flex justify-end gap-2">
+        <Button
+          onClick={() => {
+            onClose();
+            onAddStock(article);
+          }}
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
+          Add Stock
+        </Button>
+
         <Button
           onClick={() => {
             onClose();

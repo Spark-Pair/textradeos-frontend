@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Button from "./Button";
 
 /**
  * Reusable Table Component
@@ -20,6 +21,8 @@ export default function Table({
   height = "auto",
   bottomGap = true,
   size = "normal",
+  bottomButtonOnclick = null,
+  bottomButtonIcon = null,
 }) {
   const [contextMenu, setContextMenu] = useState(null);
 
@@ -138,6 +141,12 @@ export default function Table({
             </button>
           ))}
         </div>
+      )}
+
+      {bottomButtonOnclick && (
+        <Button variant="border-btn" className="absolute bottom-4 right-4" onClick={bottomButtonOnclick}>
+          { bottomButtonIcon }
+        </Button>
       )}
     </div>
   );

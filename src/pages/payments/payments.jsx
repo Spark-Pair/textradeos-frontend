@@ -4,12 +4,15 @@ import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
 import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
+import { Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Payments() {
   const [editingPayment, setEditingPayment] = useState(null);
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Payments | TexTradeOS";
@@ -84,13 +87,8 @@ export default function Payments() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Payments</h1>
-        <Button
-          onClick={() => {
-            setEditingPayment(null);
-            setIsModalOpen(true);
-          }}
-        >
-          Register Payment
+        <Button>
+          Filter
         </Button>
       </div>
 
@@ -101,6 +99,10 @@ export default function Payments() {
         onRowClick={(payment) => setSelectedPayment(payment)}
         contextMenuItems={contextMenuItems}
         loading={loading}
+        bottomButtonOnclick={() => {
+          navigate('/customers')
+        }}
+        bottomButtonIcon={<Users size={16} />}
       />
     </div>
   );

@@ -7,10 +7,14 @@ import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
 import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
+import { Plus } from "lucide-react";
+import AddStockModal from "../../components/Articles/AddStockModal";
 
 export default function Articles() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [addStockArticle, setAddStockArticle] = useState(null);
   const [editingArticle, setEditingArticle] = useState(null);
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -60,9 +64,26 @@ export default function Articles() {
     }
   };
 
+  const handleSubmitAddStock = async (formData) => {
+    try {
+      await axiosClient.post("/articles/add-stock", formData);
+      await loadArticles();
+      setIsAddStockModalOpen(false);
+      setAddStockArticle(null);
+    } catch (error) {
+      console.error("Failed to add stock:", error);
+      addToast(error.response?.data?.message || "Failed to add stock", "error");
+    }
+  };
+
   const handleEdit = (article) => {
     setEditingArticle(article);
     setIsModalOpen(true);
+  };
+
+  const handleAddStock = (article) => {
+    setAddStockArticle(article);
+    setIsAddStockModalOpen(true);
   };
 
   const columns = [
@@ -87,13 +108,8 @@ export default function Articles() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Articles</h1>
-        <Button
-          onClick={() => {
-            setEditingArticle(null);
-            setIsModalOpen(true);
-          }}
-        >
-          Register Article
+        <Button>
+          Filter
         </Button>
       </div>
 
@@ -104,6 +120,11 @@ export default function Articles() {
         onRowClick={(article) => setSelectedArticle(article)}
         contextMenuItems={contextMenuItems}
         loading={loading}
+        bottomButtonOnclick={() => {
+            setEditingArticle(null);
+            setIsModalOpen(true);
+          }}
+        bottomButtonIcon={<Plus size={16} />}
       />
 
       {/* Modals */}
@@ -119,11 +140,20 @@ export default function Articles() {
           />
         )}
 
+        {isAddStockModalOpen && (
+          <AddStockModal
+            selectedArticle={addStockArticle}
+            onClose={() => setIsAddStockModalOpen(null)}
+            onSave={handleSubmitAddStock}
+          />
+        )}
+
         {selectedArticle && (
           <ArticleDetailsModal
             article={selectedArticle}
             onClose={() => setSelectedArticle(null)}
             onEdit={handleEdit}
+            onAddStock={handleAddStock}
           />
         )}
       </AnimatePresence>

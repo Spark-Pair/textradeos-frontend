@@ -9,6 +9,7 @@ import axiosClient from "../../api/axiosClient";
 import { useToast } from "../../context/ToastContext";
 import GenerateInvoiceModal from "../../components/Customers/GenerateInvoiceModal";
 import { extractMongooseMessage } from "../../utils/index";
+import { Plus } from "lucide-react";
 
 export default function Customers() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -129,13 +130,8 @@ export default function Customers() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Customers</h1>
-        <Button
-          onClick={() => {
-            setEditingCustomer(null);
-            setIsModalOpen(true);
-          }}
-        >
-          Register Customer
+        <Button>
+          Filter
         </Button>
       </div>
 
@@ -146,6 +142,11 @@ export default function Customers() {
         onRowClick={(customer) => setSelectedCustomer(customer)}
         contextMenuItems={contextMenuItems}
         loading={loading}
+        bottomButtonOnclick={() => {
+            setEditingCustomer(null);
+            setIsModalOpen(true);
+          }}
+        bottomButtonIcon={<Plus size={16} />}
       />
 
       {/* Modals */}

@@ -7,6 +7,8 @@ import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
 import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
+import { Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Invoices() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,6 +17,7 @@ export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Invoices | TexTradeOS";
@@ -62,13 +65,8 @@ export default function Invoices() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Invoices</h1>
-        <Button
-          onClick={() => {
-            setEditingInvoice(null);
-            setIsModalOpen(true);
-          }}
-        >
-          Register Invoice
+        <Button>
+          Filter
         </Button>
       </div>
 
@@ -79,6 +77,10 @@ export default function Invoices() {
         onRowClick={(invoice) => setSelectedInvoice(invoice)}
         contextMenuItems={contextMenuItems}
         loading={loading}
+        bottomButtonOnclick={() => {
+          navigate('/customers')
+        }}
+        bottomButtonIcon={<Users size={16} />}
       />
 
       {/* Modals */}

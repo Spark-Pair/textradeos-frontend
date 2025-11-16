@@ -7,6 +7,7 @@ import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
 import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
+import { Plus } from "lucide-react";
 
 export default function Businesses() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,13 +109,8 @@ export default function Businesses() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Businesses</h1>
-        <Button
-          onClick={() => {
-            setEditingBusiness(null);
-            setIsModalOpen(true);
-          }}
-        >
-          Register Business
+        <Button>
+          Filter
         </Button>
       </div>
 
@@ -125,6 +121,11 @@ export default function Businesses() {
         onRowClick={(biz) => setSelectedBusiness(biz)}
         contextMenuItems={contextMenuItems}
         loading={loading}
+        bottomButtonOnclick={() => {
+            setEditingBusiness(null);
+            setIsModalOpen(true);
+          }}
+        bottomButtonIcon={<Plus size={16} />}
       />
 
       {/* Modals */}
