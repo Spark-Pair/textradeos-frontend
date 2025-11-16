@@ -99,8 +99,8 @@ export default function Customers() {
 
   const columns = [
     { label: "#", render: (_, i) => i + 1, width: "40px" },
-    { label: "Customer Name", field: "name", width: "auto" },
-    { label: "Person Name", field: "person_name", width: "12%" },
+    { label: "Customer Name", field: "name", width: "auto", className: "capitalize" },
+    { label: "Person Name", field: "person_name", width: "12%", className: "capitalize" },
     { label: "Phone", field: "phone_no", width: "15%", align: "center" },
     { label: "Address", field: "address", width: "18%", align: "center" },
     { label: "Balance", field: "balance", width: "18%", align: "center" },
