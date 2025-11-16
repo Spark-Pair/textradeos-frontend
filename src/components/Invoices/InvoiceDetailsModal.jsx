@@ -47,12 +47,12 @@ export default function InvoiceDetailsModal({ invoice, onClose }) {
 
             <div className="flex justify-between items-center capitalize">
               <div className="customer-details">
-                <p><span className="font-medium">Customer:</span> {invoice.customerId?.name || "-"}</p>
+                <p className="mb-1"><span className="font-medium">Customer:</span> {invoice.customerId?.name || "-"}</p>
                 <p><span className="font-medium">Contact:</span> {invoice.customerId?.phone_no || "-"}</p>
               </div>
               <div className="invoice-details">
                 {/* date and invoice no */}
-                <p><span className="font-medium">Date:</span> {formatDateWithDay(invoice.createdAt)}</p>
+                <p className="mb-1"><span className="font-medium">Date:</span> {formatDateWithDay(invoice.createdAt)}</p>
                 <p><span className="font-medium">Invoice No:</span> {invoice.invoiceNumber}</p>
               </div>
             </div>
