@@ -63,7 +63,7 @@ export default function AddPaymentModal({ onClose, onSave, selectedCustomer }) {
         />
 
         {/* Common Fields */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-2 gap-4 my-4">
           <Input
             label="Amount"
             name="amount"
@@ -89,8 +89,9 @@ export default function AddPaymentModal({ onClose, onSave, selectedCustomer }) {
           name="remarks"
           value={form.remarks}
           onChange={handleChange}
-          placeholder="Optional"
+          placeholder="Enter remarks"
           className="mb-4"
+          required={false}
         />
 
         {/* Online Fields */}
@@ -100,6 +101,7 @@ export default function AddPaymentModal({ onClose, onSave, selectedCustomer }) {
               label="Bank"
               name="bank"
               value={form.bank}
+              placeholder="Enter bank"
               onChange={handleChange}
               required
             />
@@ -107,6 +109,7 @@ export default function AddPaymentModal({ onClose, onSave, selectedCustomer }) {
               label="Transaction ID"
               name="transaction_id"
               value={form.transaction_id}
+              placeholder="Enter transaction ID"
               onChange={handleChange}
               required
             />
@@ -115,7 +118,7 @@ export default function AddPaymentModal({ onClose, onSave, selectedCustomer }) {
 
         {/* Slip Fields */}
         {form.method === "slip" && (
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-3 gap-4 mb-4">
             <Input
               label="Slip Date"
               name="slip_date"
@@ -130,12 +133,13 @@ export default function AddPaymentModal({ onClose, onSave, selectedCustomer }) {
               type="date"
               value={form.clear_date}
               onChange={handleChange}
-              required
+              required={false}
             />
             <Input
               label="Slip No."
               name="slip_no"
               value={form.slip_no}
+              placeholder="Enter slip number"
               onChange={handleChange}
               required
             />
@@ -146,9 +150,18 @@ export default function AddPaymentModal({ onClose, onSave, selectedCustomer }) {
         {form.method === "cheque" && (
           <div className="grid grid-cols-2 gap-4 mb-4">
             <Input
+              label="Bank"
+              name="cheque_bank"
+              value={form.cheque_bank}
+              placeholder="Enter bank"
+              onChange={handleChange}
+              required
+            />
+            <Input
               label="Cheque No."
               name="cheque_no"
               value={form.cheque_no}
+              placeholder="Enter cheque number"
               onChange={handleChange}
               required
             />
@@ -161,11 +174,12 @@ export default function AddPaymentModal({ onClose, onSave, selectedCustomer }) {
               required
             />
             <Input
-              label="Bank"
-              name="cheque_bank"
-              value={form.cheque_bank}
+              label="Clear Date"
+              name="clear_date"
+              type="date"
+              value={form.clear_date}
               onChange={handleChange}
-              required
+              required={false}
             />
           </div>
         )}

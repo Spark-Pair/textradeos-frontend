@@ -39,7 +39,7 @@ export default function Modal({ title, children, onClose, size = "md" }) {
         {/* Header */}
         {title && (
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
+            <h2 className="text-lg font-semibold text-gray-800 capitalize">{title}</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-xl text-gray-600 transition"

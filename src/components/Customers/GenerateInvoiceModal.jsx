@@ -148,7 +148,7 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
   };
 
   return (
-    <Modal title="Generate Invoice" onClose={onClose} size="4xl">
+    <Modal title={`Generate Invoice - ${invoicingCustomer?.name}`} onClose={onClose} size="4xl">
       <Table
         columns={columns}
         data={articles}
