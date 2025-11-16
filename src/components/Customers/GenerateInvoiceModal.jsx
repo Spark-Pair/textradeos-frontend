@@ -140,7 +140,7 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
       const { data } = await axiosClient.post("/invoices", payload);
 
       addToast("Invoice generated successfully", "success");
-      onClose(); // close modal
+      onClose(data); // close modal
     } catch (error) {
       console.error("Failed to generate invoice:", error);
       addToast(error.response?.data?.message || "Failed to generate invoice", "error");

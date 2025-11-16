@@ -9,17 +9,26 @@ import axiosClient from "../../api/axiosClient";
 import { useToast } from "../../context/ToastContext";
 import GenerateInvoiceModal from "../../components/Customers/GenerateInvoiceModal";
 import { extractMongooseMessage } from "../../utils/index";
+import InvoiceDetailsModal from "../../components/Invoices/InvoiceDetailsModal";
 
 export default function Customers() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [editingCustomer, setEditingCustomer] = useState(null);
+
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [invoicingCustomer, setInvoicingCustomer] = useState(null);
+
+  const [isInvoiceDetailsModalOpen, setIsInvoiceDetailsModalOpen] = useState(false);
+  const [generatedInvoice, setGeneratedInvoice] = useState(null);
+
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentCustomer, setPaymentCustomer] = useState(null);
+
   const [customers, setCustomers] = useState([]);
+
   const [loading, setLoading] = useState(false);
+
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -163,11 +172,23 @@ export default function Customers() {
 
         {isInvoiceModalOpen && (
           <GenerateInvoiceModal
-            onClose={() => {
+            onClose={(invoice) => {
               setIsInvoiceModalOpen(false);
               setInvoicingCustomer(null);
+
+              if (invoice && invoice._id) {
+                setIsInvoiceDetailsModalOpen(true);
+                setGeneratedInvoice(invoice);
+              }
             }}
             invoicingCustomer={invoicingCustomer}
+          />
+        )}
+
+        {isInvoiceDetailsModalOpen && (
+          <InvoiceDetailsModal
+            invoice={generatedInvoice}
+            onClose={() => setGeneratedInvoice(null)}
           />
         )}
 
