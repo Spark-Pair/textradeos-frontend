@@ -29,7 +29,7 @@ export default function InvoiceDetailsModal({ invoice, onClose }) {
       className="2xl"
     >
       <div className="flex justify-center">
-        <div className="h-[70vh] overflow-y-auto">
+        <div className="h-[60vh] overflow-y-auto">
           <div
             className="bg-white shadow-md border border-gray-300 p-6 rounded-2xl text-xs flex flex-col"
             style={{
