@@ -96,7 +96,7 @@ export default function Table({
               key={row._id || row.id || rowIndex}
               onClick={() => onRowClick && onRowClick(row)}
               onContextMenu={(e) => handleRightClick(e, row)}
-              className={`grid border-b ${bottomGap ? '' : 'last:border-b-0'} border-gray-200 px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors`}
+              className={`grid border-b ${bottomGap ? '' : 'last:border-b-0'} border-gray-200 ${size === "xs" ? "px-2.5 py-1.5" : "px-4 py-2"} hover:bg-gray-100 cursor-pointer transition-colors`}
               style={{ gridTemplateColumns }}
             >
               {columns.map((col, colIndex) => (
