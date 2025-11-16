@@ -43,34 +43,3 @@ input[type="number"]:focus {
     border-color: #3b82f6; /* Tailwind blue-500 */
     box-shadow: 0 0 0 1px #3b82f6;
 }
-
-/* Scrollbar variables */
-:root {
-  --sb-track-color: #fefeff;
-  --sb-thumb-color: #b9b8b8;
-  --sb-size: 3px;
-}
-
-/* For all elements */
-*::-webkit-scrollbar {
-  width: var(--sb-size);
-  height: var(--sb-size); /* horizontal scrollbar */
-}
-
-*::-webkit-scrollbar-track {
-  background: var(--sb-track-color);
-  border-radius: 10px;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: var(--sb-thumb-color);
-  border-radius: 10px;
-}
-
-/* Firefox support */
-@supports not selector(::-webkit-scrollbar) {
-  * {
-    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
-    scrollbar-width: thin;
-  }
-}
