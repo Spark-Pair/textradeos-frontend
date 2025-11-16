@@ -8,7 +8,7 @@ export default function InvoiceDetailsModal({ invoice, onClose }) {
   if (!invoice) return null;
 
   const calculateItemTotal = (item) => {
-    return (item.quantity * item.selling_price_snapshot).toFixed(2);
+    return (item.quantity * item.selling_price_snapshot);
   };
 
   const a5Width = 148;
@@ -67,7 +67,7 @@ export default function InvoiceDetailsModal({ invoice, onClose }) {
                   { label: "Article No.", field: "article_no", width: "auto" },
                   { label: "Quantity", field: "quantity", width: "100px", align: "center" },
                   { label: "Price", field: "selling_price_snapshot", width: "100px", align: "center" },
-                  { label: "Total", render: (item) => calculateItemTotal(item), width: "100px", align: "center" },
+                  { label: "Total", render: (item) => calculateItemTotal(item).toFixed(1), width: "100px", align: "center" },
                 ]}
                 data={flattenedItems}
                 size="xs"
@@ -79,16 +79,16 @@ export default function InvoiceDetailsModal({ invoice, onClose }) {
 
             <div className="flex gap-2">
               <div className="flex-1 border border-gray-600 rounded-lg py-1.5 px-3 flex justify-between">
-                <span>Gross Amount:</span>
-                {invoice.grossAmount.toFixed(2)}
+                <span>G. Amount:</span>
+                {invoice.grossAmount.toFixed(1)}
               </div>
               <div className="flex-1 border border-gray-600 rounded-lg py-1.5 px-3 flex justify-between">
                 <span>Discount:</span>
-                {invoice.discount.toFixed(2)}
+                {invoice.discount}%
               </div>
               <div className="flex-1 border border-gray-600 rounded-lg py-1.5 px-3 flex justify-between">
-                <span>Net Amount:</span>
-                {invoice.netAmount.toFixed(2)}
+                <span>N. Amount:</span>
+                {invoice.netAmount.toFixed(1)}
               </div>
             </div>
 
