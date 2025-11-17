@@ -11,6 +11,7 @@ import GenerateInvoiceModal from "../../components/Customers/GenerateInvoiceModa
 import { extractMongooseMessage } from "../../utils/index";
 import InvoiceDetailsModal from "../../components/Invoices/InvoiceDetailsModal";
 import { Plus } from "lucide-react";
+import GenerateStatementModal from "../../components/Customers/GenerateStatementModal";
 
 export default function Customers() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,6 +20,9 @@ export default function Customers() {
 
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [invoicingCustomer, setInvoicingCustomer] = useState(null);
+
+  const [isGenerateStatementModalOpen, setIsGenerateStatementModalOpen] = useState(false);
+  const [statementCustomer, setStatementCustomer] = useState(null);
 
   const [isInvoiceDetailsModalOpen, setIsInvoiceDetailsModalOpen] = useState(false);
   const [generatedInvoice, setGeneratedInvoice] = useState(null);
@@ -76,7 +80,20 @@ export default function Customers() {
   };
 
   const handleAddCustomerPayment = async (formData) => {
-    console.log("Hello ", formData);
+    try {
+      const { data } = await axiosClient.post("/payments/", formData);
+      await loadCustomers();
+      setIsModalOpen(false);
+      setEditingCustomer(null);
+      addToast(data.message, "success");
+    } catch (error) {
+      console.error("Failed to save customer:", error);
+
+      addToast(extractMongooseMessage(error.response?.data?.message) || "Failed to save customer", "error");
+    }
+  };
+
+  const handleGenerateStatement = async (formData) => {
     try {
       const { data } = await axiosClient.post("/payments/", formData);
       await loadCustomers();
@@ -105,6 +122,11 @@ export default function Customers() {
   const handleEdit = (customer) => {
     setEditingCustomer(customer);
     setIsModalOpen(true);
+  };
+
+  const handleStatement = (customer) => {
+    setStatementCustomer(customer);
+    setIsGenerateStatementModalOpen(true);
   };
 
   const columns = [
@@ -170,6 +192,17 @@ export default function Customers() {
             initialData={editingCustomer} // 👈 prefill data
           />
         )}
+        
+        {isGenerateStatementModalOpen && (
+          <GenerateStatementModal
+            onClose={() => {
+              setIsGenerateStatementModalOpen(false);
+              setStatementCustomer(null);
+            }}
+            onSave={handleGenerateStatement}
+            statementCustomer={statementCustomer} // 👈 prefill data
+          />
+        )}
 
         {isInvoiceModalOpen && (
           <GenerateInvoiceModal
@@ -211,6 +244,7 @@ export default function Customers() {
             onInvoice={handleInvoice}
             onPayment={handlePayment}
             onEdit={handleEdit}
+            onStatement={handleStatement}
             onToggleStatus={handleToggleStatus}
           />
         )}

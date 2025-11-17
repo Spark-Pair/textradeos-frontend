@@ -2,7 +2,7 @@ import Modal from "../Modal";
 import Button from "../Button";
 import DetailItem from "../DetailItem";
 
-export default function CustomerDetailsModal({ customer, onClose, onInvoice, onPayment, onEdit, onToggleStatus }) {
+export default function CustomerDetailsModal({ customer, onClose, onInvoice, onPayment, onEdit, onStatement, onToggleStatus }) {
   if (!customer) return null;
 
   const isActive = customer.status === "Active";
@@ -28,6 +28,16 @@ export default function CustomerDetailsModal({ customer, onClose, onInvoice, onP
 
       {/* --- Actions --- */}
       <div className="mt-8 flex justify-end gap-3">
+        <Button
+          onClick={() => {
+            onClose();
+            onStatement(customer);
+          }}
+          variant="green-btn"
+        >
+          Statement
+        </Button>
+
         <Button
           onClick={() => {
             onClose();
@@ -66,13 +76,6 @@ export default function CustomerDetailsModal({ customer, onClose, onInvoice, onP
           variant={isActive ? 'red-btn' : 'green-btn'}
         >
           {isActive ? 'In Active' : 'Active'}
-        </Button>
-
-        <Button 
-          onClick={onClose} 
-          variant="secondary-btn"
-        >
-          Close
         </Button>
       </div>
     </Modal>
