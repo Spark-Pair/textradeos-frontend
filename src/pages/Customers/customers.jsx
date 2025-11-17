@@ -107,11 +107,10 @@ export default function Customers() {
       const { customerId, ...dataToSend } = formData;
       const { data } = await axiosClient.patch(`/customers/${customerId}/statement`, dataToSend );
       
-      // Assuming you want to reload customers or update UI
-      await loadCustomers();
-      
       setIsGenerateStatementModalOpen(false);
       setStatementCustomer(null);
+      
+      console.log(data);
       
       setStatementData(data);
       setIsStatementModalOpen(true);
