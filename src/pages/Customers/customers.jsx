@@ -107,7 +107,7 @@ export default function Customers() {
       
       setIsGenerateStatementModalOpen(false);
       setStatementCustomer(null);
-
+      
       setStatementData(data);
       setIsStatementModalOpen(true);
       
