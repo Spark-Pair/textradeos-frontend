@@ -68,7 +68,7 @@ function Notifications() {
       {/* 🔹 Always-present overlay */}
       <div
         onClick={() => setIsNotificationOpen(false)}
-        className={`fixed inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity duration-300 z-60 ${
+        className={`fixed inset-0 bg-black/30 backdrop-blur-[1px] z-60 ${
           isNotificationOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
@@ -78,7 +78,7 @@ function Notifications() {
       {/* 🔹 Notification Panel */}
       <div
         ref={panelRef}
-        className={`h-screen w-96 p-2 pl-0 fixed top-0 left-full transform transition-transform duration-300 ease-in-out z-70 ${
+        className={`h-screen w-96 p-2 pl-0 fixed top-0 left-full transform z-70 ${
           isNotificationOpen ? "-translate-x-full" : ""
         }`}
       >

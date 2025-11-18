@@ -20,7 +20,7 @@ export default function Layout({ children }) {
           key={location.pathname}
           initial={{ opacity: 0, y: 25, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          className="p-5 h-full overflow-y-auto"
+          className="p-5 h-full overflow-y-auto scrollbar-hide"
         >
           {children || <Outlet />}
         </motion.div>

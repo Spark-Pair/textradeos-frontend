@@ -43,3 +43,13 @@ input[type="number"]:focus {
     border-color: #3b82f6; /* Tailwind blue-500 */
     box-shadow: 0 0 0 1px #3b82f6;
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+  position: absolute;
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.scrollbar-hide {
+  scrollbar-width: none;
+}
