@@ -31,6 +31,7 @@ export default function InvoiceDetailsModal({ invoice, onClose }) {
       <div className="flex justify-center">
         <div className="h-[60vh] overflow-y-auto">
           <div
+            id="actual-invoice"
             className="bg-white border border-gray-300 p-6 rounded-2xl text-xs flex flex-col"
             style={{
               width: `${a5Width}mm`,
@@ -104,6 +105,18 @@ export default function InvoiceDetailsModal({ invoice, onClose }) {
 
       {/* Modal Actions */}
       <div className="mt-4 flex justify-end gap-2">
+        <Button 
+          onClick={onClose} 
+          variant="green-btn"
+        >
+          Download
+        </Button>
+        <Button 
+          onClick={onClose} 
+          variant="green-btn"
+        >
+          Print
+        </Button>
         <Button 
           onClick={onClose} 
           variant="secondary-btn"

@@ -256,7 +256,9 @@ export default function Customers() {
 
         {isInvoiceModalOpen && (
           <GenerateInvoiceModal
-            onClose={(invoice) => {
+            onClose={async (invoice) => {
+              await loadCustomers();
+
               setIsInvoiceModalOpen(false);
               setInvoicingCustomer(null);
 
