@@ -82,7 +82,7 @@ export default function Filters({ fields, data = [], onFiltered, onFilterStateCh
 
             <div
                 ref={panelRef}
-                className={`h-screen w-96 p-2 pl-0 fixed top-0 left-full transform transition-transform duration-300 ease-in-out z-70 ${isFilterModalOpen ? "-translate-x-full" : ""
+                className={`h-screen w-96 p-2 pl-0 fixed top-0 -right-100 transform transition-transform duration-300 ease-in-out z-70 ${isFilterModalOpen ? "right-0" : ""
                     }`}
             >
                 <div className="w-full h-full bg-[#f8fbfb] drop-shadow-md border border-r-0 border-gray-300 rounded-lg flex flex-col">
@@ -125,8 +125,8 @@ export default function Filters({ fields, data = [], onFiltered, onFilterStateCh
                     </div>
 
                     <div className="px-4 py-3 border-t border-gray-200 grid grid-cols-2 gap-2">
-                        <Button onClick={() => setIsFilterModalOpen(false)}>Close</Button>
-                        <Button onClick={clearAllFilters}>Clear</Button>
+                        <Button variant="secondary-btn" onClick={() => setIsFilterModalOpen(false)}>Close</Button>
+                        <Button variant="red-btn" onClick={clearAllFilters}>Clear</Button>
                     </div>
                 </div>
             </div>

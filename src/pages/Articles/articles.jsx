@@ -17,9 +17,11 @@ export default function Articles() {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [addStockArticle, setAddStockArticle] = useState(null);
   const [editingArticle, setEditingArticle] = useState(null);
+
   const [articles, setArticles] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filtersActive, setFiltersActive] = useState(false);
+  
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
 

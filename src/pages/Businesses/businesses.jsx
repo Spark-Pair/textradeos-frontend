@@ -14,7 +14,11 @@ export default function Businesses() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [editingBusiness, setEditingBusiness] = useState(null);
+
   const [businesses, setBusinesses] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [filtersActive, setFiltersActive] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
 
@@ -27,7 +31,7 @@ export default function Businesses() {
     try {
       setLoading(true);
       const { data } = await axiosClient.get("/businesses/");
-      
+
       const flattened = data.map((biz) => ({
         ...biz,
         username: biz.userId?.username || "-",
@@ -35,6 +39,8 @@ export default function Businesses() {
         reg_date: formatDateWithDay(biz.registration_date),
       }));
       setBusinesses(flattened);
+      console.log(flattened);
+
     } catch (error) {
       console.error("Failed to load businesses:", error);
       addToast("Failed to load businesses", "error");
@@ -83,8 +89,8 @@ export default function Businesses() {
     { label: "Owner", field: "owner", width: "12%" },
     { label: "Phone", field: "phone_no", width: "15%", align: "center" },
     { label: "Registration Date", field: "reg_date", width: "18%", align: "center" },
-    { label: "Type", field: "type", width: "10%", align: "center",},
-    { label: "Price", field: "price", width: "10%", align: "center",},
+    { label: "Type", field: "type", width: "10%", align: "center", },
+    { label: "Price", field: "price", width: "10%", align: "center", },
     { label: "Status", field: "status", width: "10%", align: "center" },
   ];
 
@@ -110,20 +116,52 @@ export default function Businesses() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Businesses</h1>
-        {/* <Filters /> */}
+        <Filters
+          fields={[
+            { name: "name", label: "Business Name", type: "text", field: "name" },
+            { name: "owner", label: "Owner", type: "text", field: "owner" },
+            { name: "phone", label: "Phone No.", type: "text", field: "phone_no" },
+            { name: "reg_date", label: "Reg. Date", type: "reg_date" },
+            {
+              name: "type",
+              label: "Type",
+              type: "select",
+              field: "type",
+              options: [
+                { value: "monthly", label: "Monthly" },
+                { value: "yearly", label: "Yearly" }
+              ],
+            },
+            {
+              name: "status",
+              label: "Status",
+              type: "select",
+              field: "status",
+              options: [
+                { value: "active", label: "Active" },
+                { value: "inactive", label: "Inactive" }
+              ]
+            },
+          ]}
+          data={businesses}
+          onFiltered={(rows, active) => {
+            setFilteredData(rows);
+            setFiltersActive(active);
+          }}
+        />
       </div>
 
       {/* Table */}
       <Table
         columns={columns}
-        data={businesses}
+        data={filtersActive ? filteredData : businesses}
         onRowClick={(biz) => setSelectedBusiness(biz)}
         contextMenuItems={contextMenuItems}
         loading={loading}
         bottomButtonOnclick={() => {
-            setEditingBusiness(null);
-            setIsModalOpen(true);
-          }}
+          setEditingBusiness(null);
+          setIsModalOpen(true);
+        }}
         bottomButtonIcon={<Plus size={16} />}
       />
 
