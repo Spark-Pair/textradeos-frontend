@@ -7,14 +7,14 @@ export function formatDateWithDay(dateValue) {
   const formattedDate = date
     .toLocaleDateString("en-GB", {
       day: "2-digit",
-      month: "2-digit",
+      month: "short",
       year: "numeric",
     })
     .replace(/\//g, "-");
 
   const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
 
-  return `${formattedDate}, ${dayName}`;
+  return `${formattedDate.replaceAll(' ', '-')}, ${dayName}`;
 }
 
 export const extractMongooseMessage = (msg) => {
