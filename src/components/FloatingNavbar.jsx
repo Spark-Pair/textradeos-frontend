@@ -93,6 +93,17 @@ function FloatingNavbar({ onMenuClick }) {
             <BanknoteArrowDown size={20} />
           </Button>
         )}
+
+        {/* 🔹 Paymnet – user only */}
+        {hasRole(["user"]) && (
+          <Button
+            variant="normal-btn"
+            active={currentPath === "/hello"}
+            onClick={() => navigate("/hello")}
+          >
+            <BanknoteArrowDown size={20} />
+          </Button>
+        )}
       </SlidingButtons>
 
       <div className="w-px h-5 bg-gray-300" />
