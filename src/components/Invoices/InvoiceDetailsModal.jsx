@@ -3,7 +3,7 @@ import Button from "../Button";
 import { useAuth } from "../../context/AuthContext";
 import { formatDateWithDay } from "../../utils";
 import Table from "../Table";
-import InvoicePDF, { InvoiceDocument } from "../InvoicePDF";
+import InvoiceDocument from "../InvoiceDocument";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 
 export default function InvoiceDetailsModal({ invoice, onClose }) {

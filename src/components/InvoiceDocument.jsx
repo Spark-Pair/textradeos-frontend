@@ -1,28 +1,14 @@
-// InvoicePDF.jsx
-
-import React from "react";
 import {
     Page,
     Text,
     View,
     Document,
     StyleSheet,
-    PDFViewer,
     Font,
     PDFDownloadLink,
 } from "@react-pdf/renderer";
-// Assuming these utilities/components are correctly imported or defined elsewhere
-// Since I don't have the original definitions, I'll mock them or use simple placeholders.
-// import { formatDateWithDay } from "../utils";
-// import Table from "./Table";
+import { formatDateWithDay } from "../utils";
 
-// --- Mocked/Placeholder Functions/Components ---
-// Replace these with your actual implementations
-const formatDateWithDay = (date) => (date ? new Date(date).toDateString() : "-");
-const calculateItemTotal = (item) => item.quantity * item.selling_price_snapshot;
-
-// Simple Table Placeholder - This is a common pain point in react-pdf.
-// A full implementation requires more logic, but this shows the structure.
 const Table = ({ columns, data, size, bottomGap }) => {
     // 1. Extract numeric widths for fixed columns
     const fixedWidths = columns
@@ -217,154 +203,91 @@ const tableStyles = StyleSheet.create({
 // --------------------
 // PDF DOCUMENT
 // --------------------
-export const InvoiceDocument = ({ user, invoice, flattenedItems, calculateItemTotal }) => (
-    <Document>
-        <Page size="A5" style={styles.page}>
-            {/* Header (Business Name & Sales Invoice) */}
-            <View style={styles.headerContainer}>
-                <Text>{user.name}</Text>
-                <Text>Sales Invoice</Text>
-            </View>
-
-            <View style={styles.hr} />
-
-            {/* Customer & Invoice Details */}
-            <View style={styles.detailsContainer}>
-                {/* Customer Details */}
-                <View style={{ flex: 1 }}>
-                    <Text style={styles.detailText}>
-                        <Text style={styles.detailLabel}>Customer:</Text> {invoice.customerId?.name || "-"}
-                    </Text>
-                    <Text>
-                        <Text style={styles.detailLabel}>Contact:</Text> {invoice.customerId?.phone_no || "-"}
-                    </Text>
+export default function InvoiceDocument({ user, invoice, flattenedItems, calculateItemTotal }) {
+    return (
+        <Document>
+            <Page size="A5" style={styles.page}>
+                {/* Header (Business Name & Sales Invoice) */}
+                <View style={styles.headerContainer}>
+                    <Text>{user.name}</Text>
+                    <Text>Sales Invoice</Text>
                 </View>
-                {/* Invoice Details */}
-                <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                    <Text style={styles.detailText}>
-                        <Text style={styles.detailLabel}>Date:</Text> {formatDateWithDay(invoice.createdAt)}
-                    </Text>
-                    <Text>
-                        <Text style={styles.detailLabel}>Invoice No:</Text> {invoice.invoiceNumber}
-                    </Text>
+
+                <View style={styles.hr} />
+
+                {/* Customer & Invoice Details */}
+                <View style={styles.detailsContainer}>
+                    {/* Customer Details */}
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.detailText}>
+                            <Text style={styles.detailLabel}>Customer:</Text> {invoice.customerId?.name || "-"}
+                        </Text>
+                        <Text>
+                            <Text style={styles.detailLabel}>Contact:</Text> {invoice.customerId?.phone_no || "-"}
+                        </Text>
+                    </View>
+                    {/* Invoice Details */}
+                    <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                        <Text style={styles.detailText}>
+                            <Text style={styles.detailLabel}>Date:</Text> {formatDateWithDay(invoice.createdAt)}
+                        </Text>
+                        <Text>
+                            <Text style={styles.detailLabel}>Invoice No:</Text> {invoice.invoiceNumber}
+                        </Text>
+                    </View>
                 </View>
-            </View>
 
-            <View style={styles.hr} />
+                <View style={styles.hr} />
 
-            {/* Line Items Table */}
-            <View style={styles.tableWrapper}>
-                <Table
-                    columns={[
-                        // s no, article_no, quantity, price
-                        { label: "#", render: (_, i) => i + 1, width: "7%", align: "left" },
-                        { label: "Article No.", field: "article_no", width: "auto" },
-                        { label: "Quantity", field: "quantity", width: "15%", align: "center" },
-                        { label: "Price", field: "selling_price_snapshot", width: "18%", align: "center" },
-                        { label: "Total", render: (item) => calculateItemTotal(item).toFixed(1), width: "20%", align: "center" },
-                    ]}
-                    data={flattenedItems}
-                    size="xs"
-                    bottomGap={false}
-                />
-            </View>
+                {/* Line Items Table */}
+                <View style={styles.tableWrapper}>
+                    <Table
+                        columns={[
+                            // s no, article_no, quantity, price
+                            { label: "#", render: (_, i) => i + 1, width: "7%", align: "left" },
+                            { label: "Article No.", field: "article_no", width: "auto" },
+                            { label: "Quantity", field: "quantity", width: "15%", align: "center" },
+                            { label: "Price", field: "selling_price_snapshot", width: "18%", align: "center" },
+                            { label: "Total", render: (item) => calculateItemTotal(item).toFixed(1), width: "20%", align: "center" },
+                        ]}
+                        data={flattenedItems}
+                        size="xs"
+                        bottomGap={false}
+                    />
+                </View>
 
-            {/* Important: react-pdf needs a defined height or flexGrow for containers.
+                {/* Important: react-pdf needs a defined height or flexGrow for containers.
                  Since the table has flexGrow, the remaining elements will stack below it. */}
 
-            <View style={styles.hr} />
+                <View style={styles.hr} />
 
-            {/* Summary Boxes (G. Amount, Discount, N. Amount) */}
-            <View style={styles.summaryContainer}>
-                {/* G. Amount */}
-                <View style={styles.summaryBox}>
-                    <Text>G. Amount:</Text>
-                    <Text>{invoice.grossAmount.toFixed(1)}</Text>
+                {/* Summary Boxes (G. Amount, Discount, N. Amount) */}
+                <View style={styles.summaryContainer}>
+                    {/* G. Amount */}
+                    <View style={styles.summaryBox}>
+                        <Text>G. Amount:</Text>
+                        <Text>{invoice.grossAmount.toFixed(1)}</Text>
+                    </View>
+                    {/* Discount */}
+                    <View style={styles.summaryBox}>
+                        <Text>Discount:</Text>
+                        <Text>{invoice.discount}%</Text>
+                    </View>
+                    {/* N. Amount - Note: We apply the lastSummaryBox style to remove the marginRight */}
+                    <View style={[styles.summaryBox, styles.lastSummaryBox]}>
+                        <Text>N. Amount:</Text>
+                        <Text>{invoice.netAmount.toFixed(1)}</Text>
+                    </View>
                 </View>
-                {/* Discount */}
-                <View style={styles.summaryBox}>
-                    <Text>Discount:</Text>
-                    <Text>{invoice.discount}%</Text>
+
+                <View style={styles.hr} />
+
+                {/* Bottom Footer (Powered by/Copyright) */}
+                <View style={styles.bottomFooter}>
+                    <Text>Powered by SparkPair</Text>
+                    <Text>© 2025 SparkPair | +92 316 5825495</Text>
                 </View>
-                {/* N. Amount - Note: We apply the lastSummaryBox style to remove the marginRight */}
-                <View style={[styles.summaryBox, styles.lastSummaryBox]}>
-                    <Text>N. Amount:</Text>
-                    <Text>{invoice.netAmount.toFixed(1)}</Text>
-                </View>
-            </View>
-
-            <View style={styles.hr} />
-
-            {/* Bottom Footer (Powered by/Copyright) */}
-            <View style={styles.bottomFooter}>
-                <Text>Powered by SparkPair</Text>
-                <Text>© 2025 SparkPair | +92 316 5825495</Text>
-            </View>
-        </Page>
-    </Document>
-);
-
-// --------------------
-// MAIN COMPONENT (Viewer)
-// --------------------
-export default function InvoicePDF() {
-    // --- Mock Data Setup for Display ---
-    const userMock = {
-        name: "SparkPair",
-    };
-    const flattenedItemsMock = [
-        { article_no: "A456", quantity: 2, selling_price_snapshot: 10.0 },
-        { article_no: "B101", quantity: 5, selling_price_snapshot: 5.5 },
-    ];
-    const grossAmount = flattenedItemsMock.reduce((sum, item) => sum + item.quantity * item.selling_price_snapshot, 0);
-    const discountPercent = 10;
-    const discountAmount = grossAmount * (discountPercent / 100);
-    const netAmount = grossAmount - discountAmount;
-
-    const invoiceMock = {
-        invoiceNumber: "INV-001",
-        createdAt: new Date(),
-        customerId: {
-            name: "Junaid",
-            phone_no: "0300-1234567",
-        },
-        grossAmount: grossAmount,
-        discount: discountPercent,
-        netAmount: netAmount,
-    };
-    // -----------------------------------
-
-    return (
-        // <PDFViewer style={{ width: "100%", height: "100vh" }}>
-        //     <InvoiceDocument
-        //         user={userMock}
-        //         invoice={invoiceMock}
-        //         flattenedItems={flattenedItemsMock}
-        //         calculateItemTotal={calculateItemTotal}
-        //     />
-        // </PDFViewer>
-
-        <PDFDownloadLink
-            document={
-                <InvoiceDocument
-                    user={userMock}
-                    invoice={invoiceMock}
-                    flattenedItems={flattenedItemsMock}
-                    calculateItemTotal={calculateItemTotal}
-                />
-            }
-            fileName={`invoice-${invoiceMock.invoiceNumber}.pdf`}
-            style={{
-                backgroundColor: "#2563eb",
-                color: "white",
-                padding: "10px 18px",
-                borderRadius: "6px",
-                fontSize: "14px",
-                textDecoration: "none",
-                fontWeight: "500",
-            }}
-        >
-            {({ loading }) => (loading ? "Generating PDF..." : "Download Invoice PDF")}
-        </PDFDownloadLink>
+            </Page>
+        </Document>
     );
 }
