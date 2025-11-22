@@ -91,7 +91,7 @@ export default function InvoiceDetailsModal({ invoice, onClose }) {
         <div className="h-[60vh] overflow-y-auto">
           <div
             id="actual-invoice"
-            className="bg-white border border-gray-300 p-6 rounded-2xl text-xs flex flex-col"
+            className="bg-white border border-gray-300 p-6 rounded-2xl text-xs flex flex-col roboto-font"
             style={{
               width: `${a5Width}mm`,
               height: `${a5Height}mm`,

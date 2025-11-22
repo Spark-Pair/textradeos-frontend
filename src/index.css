@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@font-face {
+    font-family: "Roboto";
+    src: url("/fonts/Roboto-Regular.ttf");
+}
+
 * {
     letter-spacing: 0.6px !important;
     transition: all 0.3s ease-in-out !important;
@@ -52,4 +57,8 @@ input[type="number"]:focus {
 /* Hide scrollbar for Firefox */
 .scrollbar-hide {
   scrollbar-width: none;
+}
+
+.roboto-font {
+    font-family: "Roboto";
 }
