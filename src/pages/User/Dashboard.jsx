@@ -2,117 +2,200 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { getDateNDaysAgo, generateMockData } from "../../utils";
 import { DollarSign, ShoppingBag, Clock, Users, Calendar, } from "lucide-react";
+import Button from "../../components/Button.jsx";
 import StatTile from "../../components/Dashboard/StatTile.jsx";
 
 const SalesChart = ({ data }) => {
   const width = 800;
-  const height = 250;
-  const padding = 30;
+  const height = 300; // Increased height for better visual impact
+  const padding = 40; // Increased padding for labels
+
+  const [hoveredDataPoint, setHoveredDataPoint] = useState(null);
 
   if (data.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-gray-500">
-        No sales data available for this date range.
+      <div className="h-64 flex items-center justify-center text-gray-500 rounded-xl bg-gray-50 border border-dashed border-gray-300">
+        No sales data available for the selected date range.
       </div>
     );
   }
 
+  // 1. Data Scaling and Bounds
   const amounts = data.map(d => d.amount);
-  const minAmount = Math.min(...amounts) * 0.9;
-  const maxAmount = Math.max(...amounts) * 1.1;
+  const minAmount = Math.min(...amounts) * 0.95; // Start slightly below min
+  const maxAmount = Math.max(...amounts) * 1.05; // End slightly above max
+  const rangeAmount = maxAmount - minAmount;
+  const avgAmount = amounts.reduce((sum, a) => sum + a, 0) / amounts.length;
 
   const getX = (index) => padding + (index / (data.length - 1)) * (width - 2 * padding);
-  const getY = (amount) => height - padding - ((amount - minAmount) / (maxAmount - minAmount)) * (height - 2 * padding);
+  const getY = (amount) => height - padding - ((amount - minAmount) / rangeAmount) * (height - 2 * padding);
 
-  // Generate SVG path string
-  const pathData = data.map((d, i) => {
+  // 2. Generate SVG Path Strings (Line and Area)
+  const linePathData = data.map((d, i) => {
     const x = getX(i);
     const y = getY(d.amount);
     return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
   }).join(' ');
 
-  // Format Y-axis labels
+  // Area path closes the shape to the bottom x-axis line
+  const areaPathData = linePathData +
+    ` L ${getX(data.length - 1)} ${height - padding}` + // Move to bottom right corner
+    ` L ${getX(0)} ${height - padding}` + // Move to bottom left corner
+    ` Z`; // Close path
+
+  // 3. Label Formatting and Ticks
   const formatAmount = (num) => {
-    if (num >= 1000) return `${(num / 1000).toFixed(0)}k`;
-    return num.toLocaleString();
+    // Only show K for values >= 10,000 to keep low values readable
+    if (num >= 10000) return `PKR ${(num / 1000).toFixed(1)}k`;
+    return `PKR ${Math.round(num).toLocaleString()}`;
   };
 
-  const yAxisTicks = [minAmount, (minAmount + maxAmount) / 2, maxAmount].map(
+  const yAxisTicks = [minAmount, avgAmount, maxAmount].map(
     (n) => ({ value: n, y: getY(n) })
   );
 
+  // 4. Smart X-Axis Label Interval Calculation
+  // Determine how many labels to skip to prevent overlap.
+  // Rule: If > 10 points, skip every 2nd. If > 20 points, skip every 4th.
+  let labelInterval = 1;
+  if (data.length > 30) {
+    labelInterval = 5;
+  } else if (data.length > 15) {
+    labelInterval = 3;
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
-        {/* Y-Axis Lines and Labels */}
+    <div className="overflow-x-auto relative min-w-full">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto" style={{ minWidth: `${width}px` }}>
+
+        {/* --- Definitions for Gradient Fill --- */}
+        <defs>
+          <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: "#818cf8", stopOpacity: 0.3 }} /> {/* Indigo-400 */}
+            <stop offset="100%" style={{ stopColor: "#ffffff", stopOpacity: 0.1 }} /> {/* White */}
+          </linearGradient>
+          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#4f46e5" />
+            <stop offset="100%" stopColor="#818cf8" />
+          </linearGradient>
+        </defs>
+
+        {/* --- Area Fill --- */}
+        <path
+          d={areaPathData}
+          fill="url(#areaGradient)"
+        />
+
+        {/* --- Y-Axis Grid Lines and Labels --- */}
         {yAxisTicks.map((tick, index) => (
           <g key={index}>
+            {/* Grid Line */}
             <line
               x1={padding}
               y1={tick.y}
               x2={width - padding}
               y2={tick.y}
-              stroke="#e5e7eb" // Tailwind gray-200
-              strokeDasharray={index === 0 || index === 2 ? '0' : '4 4'}
+              stroke={index === 1 ? '#4f46e5' : '#e5e7eb'} // Highlight avg line
+              strokeWidth={index === 1 ? '1.5' : '1'}
+              strokeDasharray={index === 1 ? '5 5' : '0'} // Dashed for average
+              opacity={index === 0 || index === 2 ? 0.7 : 1}
             />
+            {/* Label */}
             <text
-              x={padding - 5}
+              x={padding - 10}
               y={tick.y + 4}
               fontSize="12"
-              fill="#6b7280" // Tailwind gray-500
+              fill="#6b7280"
               textAnchor="end"
+              className="font-medium"
             >
               {formatAmount(tick.value)}
             </text>
+            {/* Average Label */}
+            {index === 1 && (
+              <text
+                x={width - padding - 5}
+                y={tick.y - 6}
+                fontSize="10"
+                fill="#4f46e5"
+                textAnchor="end"
+                className="font-semibold"
+              >
+                Average
+              </text>
+            )}
           </g>
         ))}
-
-        {/* X-Axis Labels (Dates) */}
-        {data.map((d, i) => {
-          const x = getX(i);
-          return (
-            <text
-              key={i}
-              x={x}
-              y={height - padding + 15}
-              fontSize="10"
-              fill="#6b7280"
-              textAnchor="middle"
-            >
-              {d.date.substring(5).replace('-', '/')} {/* MM/DD */}
-            </text>
-          );
-        })}
-
-        {/* The Line */}
+        
+        {/* --- The Sales Line --- */}
         <path
-          d={pathData}
+          d={linePathData}
           fill="none"
-          stroke="#4f46e5" // Indigo-600
-          strokeWidth="3"
+          stroke="url(#lineGradient)" // Use the gradient for the line
+          strokeWidth="3.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
 
-        {/* Points and Tooltips */}
+        {/* --- X-Axis Labels (Dates) and Interaction Points --- */}
         {data.map((d, i) => {
           const x = getX(i);
           const y = getY(d.amount);
+
+          // X-Axis Label: Only display label if it's the start, end, or at the calculated interval
+          const showLabel = i === 0 || i === data.length - 1 || (i % labelInterval === 0 && i !== 0);
+
           return (
-            <circle
+            <g 
               key={i}
-              cx={x}
-              cy={y}
-              r="4"
-              fill="#4f46e5" // Indigo-600
-              stroke="#ffffff"
-              strokeWidth="2"
-              className="cursor-pointer transition-all duration-100 hover:r-6 hover:fill-indigo-400"
-              title={`Date: ${d.date}, Sales: PKR ${d.amount.toLocaleString()}`}
-            />
+              onMouseEnter={() => setHoveredDataPoint({ x, y, data: d })}
+              onMouseLeave={() => setHoveredDataPoint(null)}
+            >
+              {showLabel && (
+                <text
+                  x={x}
+                  y={height - padding + 15}
+                  fontSize="12"
+                  fill="#6b7280"
+                  textAnchor="middle"
+                  className="font-mono text-xs"
+                >
+                  {d.date.substring(5).replace('-', '/')} {/* MM/DD */}
+                </text>
+              )}
+
+              {/* Point Indicator */}
+              <circle
+                cx={x}
+                cy={y}
+                r={hoveredDataPoint && hoveredDataPoint.data.date === d.date ? 6 : 4}
+                fill="#4f46e5" // Indigo-600
+                stroke="#ffffff"
+                strokeWidth="2"
+                className="transition-all duration-150 cursor-pointer"
+              />
+            </g>
           );
         })}
       </svg>
+
+      {/* --- Floating Tooltip --- */}
+      {hoveredDataPoint && (
+        <div
+          className="absolute z-10 p-2 bg-gray-800 text-white text-xs rounded-lg shadow-xl pointer-events-none transition-opacity duration-150"
+          style={{
+            left: `${hoveredDataPoint.x / width * 100}%`,
+            top: `${hoveredDataPoint.y}px`,
+            transform: 'translate(-50%, -120%)',
+            opacity: 1
+          }}
+        >
+          <div className="font-semibold">{hoveredDataPoint.data.date}</div>
+          <div className="text-indigo-300">
+            {`PKR ${hoveredDataPoint.data.amount.toLocaleString()}`}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -371,14 +454,17 @@ export default function Dashboard() {
 
       {/* Main Content Grid: Chart + Aging */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Sales Chart with Date Filters */}
-        <div className="lg:col-span-2 bg-white shadow-md rounded-2xl p-6 border border-gray-300">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        {/* Sales Chart with Date Filters (Updated Snippet) */}
+        <div className="lg:col-span-2 bg-white shadow-sm rounded-2xl p-6 border border-gray-300">
+          <h2 className="text-[1.45rem] font-semibold text-gray-800 mb-5 flex justify-between items-center">
             Weekly Sales Performance
+            <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+              {filteredChartData.length} Day View
+            </span>
           </h2>
           
           {/* Date Range Selectors */}
-          <div className="flex flex-wrap items-end gap-4 mb-6">
+          <div className="flex flex-wrap items-end gap-4">
             <div className="flex flex-col">
               <label htmlFor="startDate" className="text-sm font-medium text-gray-700 mb-1">
                 Date From
@@ -389,7 +475,7 @@ export default function Dashboard() {
                   id="startDate"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                  className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm appearance-none"
                   max={endDate} // Cannot select a date after the end date
                 />
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
@@ -406,7 +492,7 @@ export default function Dashboard() {
                   id="endDate"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                  className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm appearance-none"
                   min={startDate} // Cannot select a date before the start date
                   max={today}
                 />
@@ -415,15 +501,22 @@ export default function Dashboard() {
             </div>
             
             {/* Quick Select Buttons */}
-            <button
+            <Button
               onClick={() => {
                 setEndDate(today);
                 setStartDate(getDateNDaysAgo(6));
               }}
-              className="px-3 py-2 bg-indigo-100 text-indigo-600 text-sm font-medium rounded-lg hover:bg-indigo-200 transition"
             >
-              Last 7 Days (Default)
-            </button>
+              Last 7 Days
+            </Button>
+            <Button
+              onClick={() => {
+                setEndDate(today);
+                setStartDate(getDateNDaysAgo(29));
+              }}
+            >
+              Last 30 Days
+            </Button>
           </div>
 
           <SalesChart data={filteredChartData} />
