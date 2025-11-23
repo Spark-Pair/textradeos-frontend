@@ -94,7 +94,7 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
         <p className="text-xl text-gray-800">
           Welcome back,{" "}
-          <strong className="text-indigo-600 font-semibold">{user?.name}</strong>
+          <strong className="text-[#127475] font-semibold">{user?.name}</strong>
         </p>
       </div>
 
@@ -109,7 +109,7 @@ export default function Dashboard() {
       <div className="bg-white shadow-sm rounded-2xl p-6 border border-gray-300">
         <h2 className="text-[1.45rem] font-semibold text-gray-800 mb-5 flex justify-between items-center">
           Weekly Sales Performance
-          <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+          <span className="text-sm font-medium text-[#127475] bg-[#127475]/18 px-5 py-4 rounded-full leading-0">
             {chartData.length} Day View
           </span>
         </h2>
@@ -126,7 +126,7 @@ export default function Dashboard() {
                 id="startDate"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm appearance-none"
+                className="pl-9 pr-3 py-2 border border-gray-300 rounded-xl text-sm appearance-none"
                 max={endDate}
               />
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
@@ -143,7 +143,7 @@ export default function Dashboard() {
                 id="endDate"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm appearance-none"
+                className="pl-9 pr-3 py-2 border border-gray-300 rounded-xl text-sm appearance-none"
                 min={startDate}
                 max={today}
               />

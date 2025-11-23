@@ -60,12 +60,12 @@ export default function SalesChart ({ data }) {
         {/* --- Definitions for Gradient Fill --- */}
         <defs>
           <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style={{ stopColor: "#818cf8", stopOpacity: 0.3 }} /> {/* Indigo-400 */}
+            <stop offset="0%" style={{ stopColor: "#127475", stopOpacity: 0.3 }} /> {/* Indigo-400 */}
             <stop offset="100%" style={{ stopColor: "#ffffff", stopOpacity: 0.1 }} /> {/* White */}
           </linearGradient>
           <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#4f46e5" />
-            <stop offset="100%" stopColor="#818cf8" />
+            <stop offset="0%" stopColor="#127475" />
+            <stop offset="100%" stopColor="#127475" />
           </linearGradient>
         </defs>
 
@@ -84,7 +84,7 @@ export default function SalesChart ({ data }) {
               y1={tick.y}
               x2={width - padding}
               y2={tick.y}
-              stroke={index === 1 ? '#4f46e5' : '#e5e7eb'} // Highlight avg line
+              stroke={index === 1 ? '#127475' : '#e5e7eb'} // Highlight avg line
               strokeWidth={index === 1 ? '1.5' : '1'}
               strokeDasharray={index === 1 ? '5 5' : '0'} // Dashed for average
               opacity={index === 0 || index === 2 ? 0.7 : 1}
@@ -106,7 +106,7 @@ export default function SalesChart ({ data }) {
                 x={width - padding - 5}
                 y={tick.y - 6}
                 fontSize="10"
-                fill="#4f46e5"
+                fill="#127475"
                 textAnchor="end"
                 className="font-semibold"
               >
@@ -158,7 +158,7 @@ export default function SalesChart ({ data }) {
                 cx={x}
                 cy={y}
                 r={hoveredDataPoint && hoveredDataPoint.data.date === d.date ? 6 : 4}
-                fill="#4f46e5" // Indigo-600
+                fill="#127475" // Indigo-600
                 stroke="#ffffff"
                 strokeWidth="2"
                 className="transition-all duration-150 cursor-pointer"
@@ -171,7 +171,7 @@ export default function SalesChart ({ data }) {
       {/* --- Floating Tooltip --- */}
       {hoveredDataPoint && (
         <div
-          className="absolute z-10 p-2 bg-gray-800 text-white text-xs rounded-lg shadow-xl pointer-events-none transition-opacity duration-150"
+          className="absolute z-10 p-2 bg-gray-800 text-gray-300 text-xs rounded-lg shadow-xl pointer-events-none transition-opacity duration-150"
           style={{
             left: `${hoveredDataPoint.x / width * 100}%`,
             top: `${hoveredDataPoint.y}px`,
@@ -180,7 +180,7 @@ export default function SalesChart ({ data }) {
           }}
         >
           <div className="font-semibold">{hoveredDataPoint.data.date}</div>
-          <div className="text-indigo-300">
+          <div className="text-gray-100">
             {`PKR ${hoveredDataPoint.data.amount?.toLocaleString()}`}
           </div>
         </div>
