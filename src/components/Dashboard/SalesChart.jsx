@@ -54,7 +54,7 @@ export default function SalesChart ({ data }) {
   }
 
   return (
-    <div className="overflow-x-auto relative min-w-full">
+    <div className="relative min-w-full">
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto" style={{ minWidth: `${width}px` }}>
 
         {/* --- Definitions for Gradient Fill --- */}
@@ -171,7 +171,7 @@ export default function SalesChart ({ data }) {
       {/* --- Floating Tooltip --- */}
       {hoveredDataPoint && (
         <div
-          className="absolute z-10 p-2 bg-gray-800 text-gray-300 text-xs rounded-lg shadow-xl pointer-events-none transition-opacity duration-150"
+          className="absolute z-50 p-2 bg-gray-800 text-gray-300 text-xs rounded-lg shadow-xl pointer-events-none transition-opacity duration-150"
           style={{
             left: `${hoveredDataPoint.x / width * 100}%`,
             top: `${hoveredDataPoint.y}px`,
@@ -179,8 +179,8 @@ export default function SalesChart ({ data }) {
             opacity: 1
           }}
         >
-          <div className="font-semibold">{hoveredDataPoint.data.date}</div>
-          <div className="text-gray-100">
+          <div className="font-semibold text-nowrap">{hoveredDataPoint.data.date}</div>
+          <div className="text-gray-100 text-nowrap">
             {`PKR ${hoveredDataPoint.data.amount?.toLocaleString()}`}
           </div>
         </div>
