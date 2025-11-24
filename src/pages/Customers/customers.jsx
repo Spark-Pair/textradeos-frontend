@@ -185,12 +185,13 @@ export default function Customers() {
 
         <div className="flex gap-2">
           <PrintListBtn
+            label="Customer"
             columns={columns}
             data={customers}
             filtersActive={filtersActive}
             filteredData={filteredData}
             topSection={[
-              { title: "Total Records", value: "2" },
+              { title: "Total Records", value: filtersActive ? filteredData.length : customers.length },
               { title: "Balance", value: "2050" },
             ]}
             firstPageRowCount={18}

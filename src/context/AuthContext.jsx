@@ -5,14 +5,34 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // 👈 added
+  const [loading, setLoading] = useState(true);
 
+  // 🔹 Check user & business status from DB
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false); // 👈 finish initialization
+    const checkAuth = async () => {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data } = await axiosClient.get("/auth/status", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUser(data.user); // user is active, and business too if applicable
+      } catch (err) {
+        console.log("Auth check failed:", err.response?.data?.message || err.message);
+        logout(); // logout if inactive
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   const login = (data) => {

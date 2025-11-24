@@ -29,6 +29,7 @@ function paginate(data, firstCount, otherCount) {
 }
 
 function PrintListBtn({
+  label,
   columns,
   data,
   filtersActive,
@@ -111,7 +112,7 @@ function PrintListBtn({
             <View
               style={styles.header}
             >
-              <Text style={{ fontSize: 14, fontWeight: "bold" }}>Customer List</Text>
+              <Text style={{ fontSize: 14, fontWeight: "bold" }}>{label} List</Text>
 
               <Text
                 render={({ pageNumber, totalPages }) =>
@@ -160,7 +161,7 @@ function PrintListBtn({
   )
 
   return (
-    <PDFDownloadLink document={PDFDocument} fileName="customers.pdf" className="flex items-center bg-[#127475] text-white px-4 py-2 rounded-xl hover:bg-[#0c5f60]">
+    <PDFDownloadLink document={PDFDocument} fileName={`${label}_list.pdf`} className="flex items-center bg-[#127475] text-white px-4 py-2 rounded-xl hover:bg-[#0c5f60]">
       {({ loading }) => (
         <>
           <Download className="mr-2 h-4 w-4" />

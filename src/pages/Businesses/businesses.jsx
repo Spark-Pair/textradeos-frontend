@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import Button from "../../components/Button";
 import AddBusinessModal from "../../components/Businesses/AddBusinessModal";
 import BusinessDetailsModal from "../../components/Businesses/BusinessDetailsModal";
 import Table from "../../components/Table";
@@ -9,6 +8,7 @@ import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
 import { Plus } from "lucide-react";
 import Filters from "../../components/Filters";
+import PrintListBtn from "../../components/PrintListBtn";
 
 export default function Businesses() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -116,39 +116,56 @@ export default function Businesses() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Businesses</h1>
-        <Filters
-          fields={[
-            { name: "name", label: "Business Name", type: "text", field: "name" },
-            { name: "owner", label: "Owner", type: "text", field: "owner" },
-            { name: "phone", label: "Phone No.", type: "text", field: "phone_no" },
-            { name: "reg_date", label: "Reg. Date", type: "reg_date" },
-            {
-              name: "type",
-              label: "Type",
-              type: "select",
-              field: "type",
-              options: [
-                { value: "monthly", label: "Monthly" },
-                { value: "yearly", label: "Yearly" }
-              ],
-            },
-            {
-              name: "status",
-              label: "Status",
-              type: "select",
-              field: "status",
-              options: [
-                { value: "active", label: "Active" },
-                { value: "inactive", label: "Inactive" }
-              ]
-            },
-          ]}
-          data={businesses}
-          onFiltered={(rows, active) => {
-            setFilteredData(rows);
-            setFiltersActive(active);
-          }}
-        />
+
+        <div className="flex gap-2">
+          <PrintListBtn
+            label="Business"
+            columns={columns}
+            data={businesses}
+            filtersActive={filtersActive}
+            filteredData={filteredData}
+            topSection={[
+              { title: "Total Records", value: filtersActive ? filteredData.length : businesses.length },
+              { title: "Balance", value: "2050" },
+            ]}
+            firstPageRowCount={18}
+            otherPageRowCount={19}
+          />
+
+          <Filters
+            fields={[
+              { name: "name", label: "Business Name", type: "text", field: "name" },
+              { name: "owner", label: "Owner", type: "text", field: "owner" },
+              { name: "phone", label: "Phone No.", type: "text", field: "phone_no" },
+              { name: "reg_date", label: "Reg. Date", type: "reg_date" },
+              {
+                name: "type",
+                label: "Type",
+                type: "select",
+                field: "type",
+                options: [
+                  { value: "monthly", label: "Monthly" },
+                  { value: "yearly", label: "Yearly" }
+                ],
+              },
+              {
+                name: "status",
+                label: "Status",
+                type: "select",
+                field: "status",
+                options: [
+                  { value: "active", label: "Active" },
+                  { value: "inactive", label: "Inactive" }
+                ]
+              },
+            ]}
+            data={businesses}
+            onFiltered={(rows, active) => {
+              setFilteredData(rows);
+              setFiltersActive(active);
+            }}
+          />
+        </div>
       </div>
 
       {/* Table */}

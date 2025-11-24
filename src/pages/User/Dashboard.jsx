@@ -61,8 +61,8 @@ export default function Dashboard() {
       label: "Today's Sales",
       value: `PKR ${stats.todaySales.toLocaleString()}`,
       icon: DollarSign,
-      color: "text-blue-500",
-      bgColor: "bg-blue-100",
+      color: "text-green-500",
+      bgColor: "bg-green-100",
     },
     {
       label: "Monthly Sales",
@@ -79,11 +79,11 @@ export default function Dashboard() {
       bgColor: "bg-blue-100",
     },
     {
-      label: "Total Customers",
-      value: stats.customers.toLocaleString(),
-      icon: Users,
-      color: "text-orange-500",
-      bgColor: "bg-orange-100",
+      label: "Monthly Payments",
+      value: `PKR ${stats.monthlyPayments.toLocaleString()}`,
+      icon: BanknoteArrowDown,
+      color: "text-blue-500",
+      bgColor: "bg-blue-100",
     },
   ];
 

@@ -10,6 +10,7 @@ import { useToast } from "../../context/ToastContext";
 import { Plus } from "lucide-react";
 import AddStockModal from "../../components/Articles/AddStockModal";
 import Filters from "../../components/Filters";
+import PrintListBtn from "../../components/PrintListBtn";
 
 export default function Articles() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -94,7 +95,7 @@ export default function Articles() {
   };
 
   const columns = [
-    { label: "#", render: (_, i) => i + 1, width: "40px" },
+    { label: "#", render: (_, i) => i + 1, width: "3%" },
     { label: "Article No.", field: "article_no", width: "12%" },
     { label: "Season", field: "season", width: "12%", className: "capitalize" },
     { label: "Size", field: "size", width: "15%", align: "center", className: "capitalize" },
@@ -115,59 +116,76 @@ export default function Articles() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Articles</h1>
-        <Filters
-          fields={[
-            { name: "article_no", label: "Article No.", type: "text", field: "article_no" },
-            {
-              name: "season",
-              label: "Season",
-              type: "select",
-              field: "season",
-              options: [
-                { value: "half", label: "Half" },
-                { value: "full", label: "Full" },
-                { value: "winter", label: "Winter" },
-              ],
-            },
-            {
-              name: "size",
-              label: "Size",
-              type: "select",
-              field: "size",
-              options: [
-                { value: "1-2", label: "1-2" },
-                { value: "s-m-l", label: "S-M-L" },
-                { value: "18-20-22", label: "18-20-22" },
-              ],
-            },
-            {
-              name: "category",
-              label: "Category",
-              type: "select",
-              field: "category",
-              options: [
-                { value: "1-pc", label: "1-Pc" },
-                { value: "2-pc", label: "2-Pc" },
-                { value: "3-pc", label: "3-Pc" },
-              ],
-            },
-            {
-              name: "type",
-              label: "Type",
-              type: "select",
-              field: "type",
-              options: [
-                { value: "baba", label: "Baba" },
-                { value: "baby", label: "Baby" },
-              ],
-            },
-          ]}
-          data={articles}
-          onFiltered={(rows, active) => {
-            setFilteredData(rows);
-            setFiltersActive(active);
-          }}
-        />
+
+        <div className="flex gap-2">
+          <PrintListBtn
+            label="Article"
+            columns={columns}
+            data={articles}
+            filtersActive={filtersActive}
+            filteredData={filteredData}
+            topSection={[
+              { title: "Total Records", value: filtersActive ? filteredData.length : articles.length },
+              { title: "Balance", value: "2050" },
+            ]}
+            firstPageRowCount={18}
+            otherPageRowCount={19}
+          />
+
+          <Filters
+            fields={[
+              { name: "article_no", label: "Article No.", type: "text", field: "article_no" },
+              {
+                name: "season",
+                label: "Season",
+                type: "select",
+                field: "season",
+                options: [
+                  { value: "half", label: "Half" },
+                  { value: "full", label: "Full" },
+                  { value: "winter", label: "Winter" },
+                ],
+              },
+              {
+                name: "size",
+                label: "Size",
+                type: "select",
+                field: "size",
+                options: [
+                  { value: "1-2", label: "1-2" },
+                  { value: "s-m-l", label: "S-M-L" },
+                  { value: "18-20-22", label: "18-20-22" },
+                ],
+              },
+              {
+                name: "category",
+                label: "Category",
+                type: "select",
+                field: "category",
+                options: [
+                  { value: "1-pc", label: "1-Pc" },
+                  { value: "2-pc", label: "2-Pc" },
+                  { value: "3-pc", label: "3-Pc" },
+                ],
+              },
+              {
+                name: "type",
+                label: "Type",
+                type: "select",
+                field: "type",
+                options: [
+                  { value: "baba", label: "Baba" },
+                  { value: "baby", label: "Baby" },
+                ],
+              },
+            ]}
+            data={articles}
+            onFiltered={(rows, active) => {
+              setFilteredData(rows);
+              setFiltersActive(active);
+            }}
+          />
+        </div>
       </div>
 
       {/* Table */}

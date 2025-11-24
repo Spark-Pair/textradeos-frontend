@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import PaymentDetailsModal from "../../components/Payments/PaymentDetailsModal";
 import { AnimatePresence } from "framer-motion";
 import Filters from "../../components/Filters";
+import PrintListBtn from "../../components/PrintListBtn";
 
 export default function Payments() {
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -93,31 +94,48 @@ export default function Payments() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Payments</h1>
-        <Filters
-          fields={[
-            { name: "customer", label: "Customer", type: "text", field: "name" },
-            {
-              name: "method",
-              label: "Method",
-              type: "select",
-              field: "method",
-              options: [
-                { value: "cash", label: "Cash" },
-                { value: "online", label: "Online" },
-                { value: "slip", label: "Slip" },
-                { value: "cheque", label: "Cheque" },
-              ],
-            },
-            { name: "date", label: "Date", type: "date", field: "entry_date" },
-            { name: "reff_no", label: "Reff No.", type: "text", field: "reff_no" },
-            { name: "payment_date", label: "Payment Date", type: "date", field: "payment_date" },
-          ]}
-          data={payments}
-          onFiltered={(rows, active) => {
-            setFilteredData(rows);
-            setFiltersActive(active);
-          }}
-        />
+
+        <div className="flex gap-2">
+          <PrintListBtn
+            label="Payment"
+            columns={columns}
+            data={payments}
+            filtersActive={filtersActive}
+            filteredData={filteredData}
+            topSection={[
+              { title: "Total Records", value: filtersActive ? filteredData.length : payments.length },
+              { title: "Balance", value: "2050" },
+            ]}
+            firstPageRowCount={18}
+            otherPageRowCount={19}
+          />
+
+          <Filters
+            fields={[
+              { name: "customer", label: "Customer", type: "text", field: "name" },
+              {
+                name: "method",
+                label: "Method",
+                type: "select",
+                field: "method",
+                options: [
+                  { value: "cash", label: "Cash" },
+                  { value: "online", label: "Online" },
+                  { value: "slip", label: "Slip" },
+                  { value: "cheque", label: "Cheque" },
+                ],
+              },
+              { name: "date", label: "Date", type: "date", field: "entry_date" },
+              { name: "reff_no", label: "Reff No.", type: "text", field: "reff_no" },
+              { name: "payment_date", label: "Payment Date", type: "date", field: "payment_date" },
+            ]}
+            data={payments}
+            onFiltered={(rows, active) => {
+              setFilteredData(rows);
+              setFiltersActive(active);
+            }}
+          />
+        </div>
       </div>
 
       {/* Table */}

@@ -10,6 +10,7 @@ import { useToast } from "../../context/ToastContext";
 import { Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Filters from "../../components/Filters";
+import PrintListBtn from "../../components/PrintListBtn";
 
 export default function Invoices() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,33 +71,50 @@ export default function Invoices() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Invoices</h1>
-        <Filters
-          fields={[
-            {
-              name: "invoiceNumber",
-              label: "Invoice No.",
-              type: "text",
-              field: "invoiceNumber",
-            },
-            {
-              name: "customerName",
-              label: "Customer Name",
-              type: "text",
-              field: "customerName",
-            },
-            {
-              name: "date",
-              label: "Date",
-              type: "date",
-              field: "date",
-            },
-          ]}
-          data={invoices}
-          onFiltered={(rows, active) => {
-            setFilteredData(rows);
-            setFiltersActive(active);
-          }}
-        />
+
+        <div className="flex gap-2">
+          <PrintListBtn
+            label="Invoice"
+            columns={columns}
+            data={invoices}
+            filtersActive={filtersActive}
+            filteredData={filteredData}
+            topSection={[
+              { title: "Total Records", value: filtersActive ? filteredData.length : invoices.length },
+              { title: "Balance", value: "2050" },
+            ]}
+            firstPageRowCount={18}
+            otherPageRowCount={19}
+          />
+
+          <Filters
+            fields={[
+              {
+                name: "invoiceNumber",
+                label: "Invoice No.",
+                type: "text",
+                field: "invoiceNumber",
+              },
+              {
+                name: "customerName",
+                label: "Customer Name",
+                type: "text",
+                field: "customerName",
+              },
+              {
+                name: "date",
+                label: "Date",
+                type: "date",
+                field: "date",
+              },
+            ]}
+            data={invoices}
+            onFiltered={(rows, active) => {
+              setFilteredData(rows);
+              setFiltersActive(active);
+            }}
+          />
+        </div>
       </div>
 
       {/* Table */}
