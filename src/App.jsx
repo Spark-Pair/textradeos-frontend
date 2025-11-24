@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import { SocketProvider } from "./context/SocketContext"; // 👈 import
+import { SocketProvider } from "./context/SocketContext";
 import { LoaderProvider } from "./context/LoaderContext";
 import Login from "./pages/Login";
 import Unauthorized from "./pages/Unauthorized";
@@ -12,6 +12,7 @@ import Customers from "./pages/Customers/customers";
 import Articles from "./pages/Articles/articles";
 import Invoices from "./pages/Invoices/invoices";
 import Payments from "./pages/payments/payments";
+import { useEffect } from "react";
 
 export default function App() {
   return (

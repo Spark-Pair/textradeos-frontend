@@ -39,8 +39,6 @@ export default function Payments() {
         clear_date: payment.clear_date ? formatDateWithDay(payment.clear_date) : "-",
         reff_no: payment.cheque_no !== "" ? payment.cheque_no : payment.slip_no !== "" ? payment.slip_no : payment.transaction_id !== "" ? payment.transaction_id : "-",
       }));
-      console.log(flattened);
-
       setPayments(flattened);
 
     } catch (error) {

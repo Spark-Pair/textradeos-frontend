@@ -39,7 +39,6 @@ export default function Businesses() {
         reg_date: formatDateWithDay(biz.registration_date),
       }));
       setBusinesses(flattened);
-      console.log(flattened);
 
     } catch (error) {
       console.error("Failed to load businesses:", error);

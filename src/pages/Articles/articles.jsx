@@ -42,7 +42,6 @@ export default function Articles() {
         status: article.isActive ? "Active" : "Inactive",
         reg_date: formatDateWithDay(article.registration_date),
       }));
-      console.log(flattened);
 
       setArticles(flattened);
 

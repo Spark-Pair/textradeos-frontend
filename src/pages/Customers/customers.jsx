@@ -59,7 +59,6 @@ export default function Customers() {
         status: customer.isActive ? "Active" : "In Active",
         address: customer.address || "-",
       }));
-      console.log(flattened);
 
       setCustomers(flattened);
     } catch (error) {
@@ -111,8 +110,6 @@ export default function Customers() {
       setIsGenerateStatementModalOpen(false);
       setStatementCustomer(null);
 
-      console.log(data);
-
       setStatementData(data);
       setIsStatementModalOpen(true);
 
@@ -131,8 +128,6 @@ export default function Customers() {
   const handleInvoice = (customer) => {
     setIsInvoiceModalOpen(true);
     setInvoicingCustomer(customer);
-    console.log(customer);
-
   };
 
   const handlePayment = (customer) => {

@@ -1,12 +1,29 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Notifications from "../components/Notifications";
 import MenuModal from "../components/MenuModal";
 import FloatingNavbar from "../components/FloatingNavbar";
 import Loader from "../components/Loader";
+import { useSocket } from "../context/SocketContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function Layout({ children }) {
+  const socket = useSocket();
+  const { user, logout } = useAuth();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("business-status-changed", (data) => {
+      if (data.isActive == false && data.businessId == user.businessId) {
+        logout();
+      }
+    });
+
+    return () => socket.off("business-status-changed");
+  }, [socket]);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation(); // ✅ detect path changes
 

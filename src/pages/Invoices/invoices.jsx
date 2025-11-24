@@ -40,8 +40,6 @@ export default function Invoices() {
         customerName: invoice.customerId?.name || "-",
         date: formatDateWithDay(invoice.createdAt),
       }));
-
-      console.log(flattened);
       setInvoices(flattened);
 
     } catch (error) {
