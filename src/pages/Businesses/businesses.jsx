@@ -83,7 +83,7 @@ export default function Businesses() {
   };
 
   const columns = [
-    { label: "#", render: (_, i) => i + 1, width: "40px" },
+    { label: "#", render: (_, i) => i + 1, width: "3%" },
     { label: "Business Name", field: "name", width: "auto" },
     { label: "Owner", field: "owner", width: "12%" },
     { label: "Phone", field: "phone_no", width: "15%", align: "center" },

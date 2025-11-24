@@ -125,7 +125,7 @@ export default function InvoiceDetailsModal({ invoice, onClose }) {
               <Table
                 columns={[
                   // s no, article_no, quantity, price
-                  { label: "#", render: (_, i) => i + 1, width: "40px", align: "left" },
+                  { label: "#", render: (_, i) => i + 1, width: "3%", align: "left" },
                   { label: "Article No.", field: "article_no", width: "auto" },
                   { label: "Quantity", field: "quantity", width: "100px", align: "center" },
                   { label: "Price", field: "selling_price_snapshot", width: "100px", align: "center" },

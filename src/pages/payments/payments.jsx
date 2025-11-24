@@ -73,7 +73,7 @@ export default function Payments() {
   };
 
   const columns = [
-    { label: "#", render: (_, i) => i + 1, width: "40px" },
+    { label: "#", render: (_, i) => i + 1, width: "3%" },
     { label: "Customer", field: "name", width: "auto", className: "capitalize" },
     { label: "Method", field: "method", width: "10%", className: "capitalize" },
     { label: "Date", field: "entry_date", width: "15%", align: "center" },

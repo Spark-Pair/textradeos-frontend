@@ -51,7 +51,7 @@ export default function Invoices() {
   };
 
   const columns = [
-    { label: "#", render: (_, i) => i + 1, width: "40px" },
+    { label: "#", render: (_, i) => i + 1, width: "3%" },
     { label: "Date", field: "date", width: "16%" },
     { label: "Customer", field: "customerName", width: "auto" },
     { label: "Invoice No.", field: "invoiceNumber", width: "12%" },
