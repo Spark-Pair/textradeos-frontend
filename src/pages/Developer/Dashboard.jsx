@@ -23,7 +23,7 @@ export default function DeveloperDashboard() {
         setDevStats(res.data);
 
         // Logged-in users
-        const usersRes = await axiosClient.get("/dashboard/getlogedinusers");
+        const usersRes = await axiosClient.get("/dashboard/getloggedinusers");
         console.log(usersRes);
         
         setActiveUsers(usersRes.data);
