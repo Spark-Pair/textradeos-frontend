@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Modal from "../Modal";
 import Button from "../Button";
 import { useToast } from "../../context/ToastContext";
@@ -13,6 +13,7 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
   const [loading, setLoading] = useState(false);
   const [articles, setArticles] = useState([]);
   const [selectedArticles, setSelectedArticles] = useState({});
+  const quantityRefs = useRef({});
   const [discount, setDiscount] = useState(0);
   const [error, setError] = useState({}); // track quantity/discount errors
 
@@ -27,8 +28,22 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
   const toggleArticle = (article) => {
     setSelectedArticles(prev => {
       const copy = { ...prev };
-      if (copy[article._id]) delete copy[article._id];
-      else copy[article._id] = { ...article, quantity: 1 };
+
+      const isSelected = !!copy[article._id];
+
+      if (isSelected) {
+        // remove selection
+        delete copy[article._id];
+      } else {
+        // add selection
+        copy[article._id] = { ...article, quantity: 1 };
+
+        // ⭐ auto-focus after DOM updates
+        setTimeout(() => {
+          quantityRefs.current[article._id]?.focus();
+        }, 0);
+      }
+
       return copy;
     });
   };
@@ -103,15 +118,14 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
         const hasError = error[row._id];
         return (
           <input
+            ref={(el) => (quantityRefs.current[row._id] = el)}
             type="number"
             min="1"
             disabled={!selected}
             value={selected?.quantity || 1}
             onChange={e => changeQuantity(row, e.target.value)}
-            onClick={e => {
-              e.stopPropagation();
-              e.target.select();
-            }} // ✅ prevent row toggle
+            onClick={e => e.stopPropagation()} // ✅ prevent row toggle
+            onFocus={e => e.target.select()}
             className={`w-16 px-1.5 py-0.5 rounded-lg border focus:outline-none
             ${!selected ? "opacity-40 cursor-not-allowed" : ""}
             ${hasError ? "border-red-500 bg-red-50" : "border-gray-300 bg-[#f8fbfb]"}
@@ -160,10 +174,12 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
   };
 
   /** ---------- HANDLE ROW CLICK ---------- **/
-  const handleRowClick = (article) => toggleArticle(article);
+  const handleRowClick = (article) => {
+    toggleArticle(article);
+  };
 
   return (
-    <Modal title={`Generate Invoice - ${invoicingCustomer?.name}`} onClose={onClose} size="4xl">
+    <Modal title={`Generate Invoice - ${invoicingCustomer?.name}`} onClose={onClose} size="4xl" >
       <Table
         columns={columns}
         data={articles}
@@ -188,7 +204,7 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
             type="labelInBox"
             value={discount}
             onChange={e => handleDiscountChange(e.target.value)}
-            onClick={e => e.target.select()}
+            onFocus={e => e.target.select()}
             placeholder="0"
             className={error.discount ? "border-red-500 bg-red-50" : ""}
           />

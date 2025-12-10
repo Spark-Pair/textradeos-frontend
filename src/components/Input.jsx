@@ -7,6 +7,7 @@ export default function Input({
   value,
   onChange,
   onClick,
+  onFocus,
   allowDecimal = false,
   required = true,
   ...props
@@ -81,6 +82,7 @@ export default function Input({
             value={value}
             onChange={handleChange}
             onClick={onClick}
+            onFocus={onFocus}
             className="w-24 text-right bg-transparent focus:outline-none pr-1"
           />
         </div>
@@ -93,7 +95,7 @@ export default function Input({
           value={displayValue}
           onChange={handleChange}
           onClick={onClick}
-          onFocus={handleFocus}
+          onFocus={() => {handleFocus(); if (onFocus) onFocus();}}
           inputMode={type === "amount" ? (allowDecimal ? "decimal" : "numeric") : undefined}
           className={`w-full bg-[#f8fbfb] border border-gray-300 rounded-xl ps-4 p-2.5 focus:outline-none focus:ring-2 focus:ring-[#127475] text-gray-700 ${className}`}
         />
