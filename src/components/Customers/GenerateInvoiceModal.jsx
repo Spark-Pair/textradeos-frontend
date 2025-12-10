@@ -108,7 +108,10 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
             disabled={!selected}
             value={selected?.quantity || 1}
             onChange={e => changeQuantity(row, e.target.value)}
-            onClick={e => e.stopPropagation()} // ✅ prevent row toggle
+            onClick={e => {
+              e.stopPropagation();
+              e.target.select();
+            }} // ✅ prevent row toggle
             className={`w-16 px-1.5 py-0.5 rounded-lg border focus:outline-none
             ${!selected ? "opacity-40 cursor-not-allowed" : ""}
             ${hasError ? "border-red-500 bg-red-50" : "border-gray-300 bg-[#f8fbfb]"}
@@ -185,6 +188,7 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
             type="labelInBox"
             value={discount}
             onChange={e => handleDiscountChange(e.target.value)}
+            onClick={e => e.target.select()}
             placeholder="0"
             className={error.discount ? "border-red-500 bg-red-50" : ""}
           />
