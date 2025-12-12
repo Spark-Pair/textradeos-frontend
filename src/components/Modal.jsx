@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
+import Input from "./Input";
 
-export default function Modal({ title, children, onClose, size = "md" }) {
+export default function Modal({ title, children, withSearchBar, onSearch, onClose, size = "md" }) {
   const sizes = {
     "sm": "max-w-sm",
     "md": "max-w-md",
@@ -11,6 +12,8 @@ export default function Modal({ title, children, onClose, size = "md" }) {
     "2xl": "max-w-2xl",
     "4xl": "max-w-4xl",
   };
+
+  const [searchValue, setSearchValue] = useState("");
 
   // ✅ Close on Escape key press
   useEffect(() => {
@@ -40,12 +43,26 @@ export default function Modal({ title, children, onClose, size = "md" }) {
         {title && (
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-800 capitalize">{title}</h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-xl text-gray-600 transition"
-            >
-              <X size={18} />
-            </button>
+            <div className="flex gap-2">
+              {withSearchBar && (
+                <div className="w-72">
+                  <Input
+                    value={searchValue}
+                    onChange={e => {
+                      setSearchValue(e.target.value);
+                      onSearch && onSearch(e.target.value);
+                    }}
+                    placeholder="Search..."
+                  />
+                </div>
+              )}
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-xl text-gray-600 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
           </div>
         )}
 

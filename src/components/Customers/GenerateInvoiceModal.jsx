@@ -12,6 +12,7 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
 
   const [loading, setLoading] = useState(false);
   const [articles, setArticles] = useState([]);
+  const [allArticles, setAllArticles] = useState([]);
   const [selectedArticles, setSelectedArticles] = useState({});
   const quantityRefs = useRef({});
   const [discount, setDiscount] = useState(0);
@@ -83,6 +84,7 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
         reg_date: formatDateWithDay(a.registration_date),
       }));
       setArticles(flattened);
+      setAllArticles(flattened);
     } catch (err) {
       console.error("Failed to load articles:", err);
       addToast("Failed to load articles", "error");
@@ -178,8 +180,16 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
     toggleArticle(article);
   };
 
+  const handleArticleSearch = (searchTerm) => {
+    const filtered = allArticles.filter(article =>
+      // if search term is empty, show all
+      searchTerm === "" || article.article_no.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setArticles(filtered);
+  }
+
   return (
-    <Modal title={`Generate Invoice - ${invoicingCustomer?.name}`} onClose={onClose} size="4xl" >
+    <Modal title={`Generate Invoice - ${invoicingCustomer?.name}`} withSearchBar onSearch={handleArticleSearch} onClose={onClose} size="4xl" >
       <Table
         columns={columns}
         data={articles}

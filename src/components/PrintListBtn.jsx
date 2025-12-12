@@ -147,7 +147,7 @@ export default function PrintListBtn({
       onClick={handleClick}
       className="flex items-center bg-[#127475] text-white px-4 py-2 rounded-xl hover:bg-[#0c5f60]"
     >
-      Download {label} List
+      Download List
     </button>
   );
 }
