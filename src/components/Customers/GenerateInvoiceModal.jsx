@@ -17,6 +17,7 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
   const quantityRefs = useRef({});
   const [discount, setDiscount] = useState(0);
   const [error, setError] = useState({}); // track quantity/discount errors
+  const [generating, setGenerating] = useState(false);
 
   /** ---------- CALCULATED TOTALS ---------- **/
   const grossAmount = Object.values(selectedArticles).reduce(
@@ -152,6 +153,8 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
     }
 
     try {
+      setGenerating(true);
+
       const items = Object.values(selectedArticles).map(item => ({
         articleId: item._id,
         quantity: item.quantity,
@@ -172,6 +175,8 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
     } catch (err) {
       console.error("Failed to generate invoice:", err);
       addToast(err.response?.data?.message || "Failed to generate invoice", "error");
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -232,10 +237,12 @@ export default function GenerateInvoiceModal({ onClose, invoicingCustomer }) {
             onClick={handleGenerate}
             disabled={
               Object.keys(selectedArticles).length === 0 ||
-              Object.values(error).some(Boolean)
+              Object.values(error).some(Boolean) ||
+              generating
             }
+            className="disabled:opacity-50"
           >
-            Generate
+            {generating ? "Generating..." : "Generate"}
           </Button>
         </div>
       </div>
