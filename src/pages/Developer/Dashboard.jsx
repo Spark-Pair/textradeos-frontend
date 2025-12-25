@@ -5,6 +5,7 @@ import axiosClient from "../../api/axiosClient";
 import { Building2, Users, Banknote, Calendar } from "lucide-react";
 
 import StatTile from "../../components/Dashboard/StatTile.jsx";
+import Table from "../../components/Table.jsx";
 
 export default function DeveloperDashboard() {
   const { user } = useAuth();
@@ -18,19 +19,32 @@ export default function DeveloperDashboard() {
 
     const fetchDashboard = async () => {
       try {
-        // Stats
-        const res = await axiosClient.get("/dashboard/stats");
-        console.log({devStats: res.data});
+        setLoading(true);
         
-        setDevStats(res.data);
+        // Dono requests ko parallel chalaein (Faster performance)
+        const [statsRes, usersRes] = await Promise.all([
+          axiosClient.get("/dashboard/stats"),
+          axiosClient.get("/dashboard/getloggedinusers")
+        ]);
 
-        // Logged-in users
-        const usersRes = await axiosClient.get("/dashboard/getloggedinusers");
-        console.log(usersRes);
-        
-        setActiveUsers(usersRes.data);
+        setDevStats(statsRes.data);
+
+        // Login time ko readable format mein convert karna
+        const formattedUsers = usersRes.data.map(user => ({
+          ...user,
+          // Readable format: "Dec 25, 2:30 PM"
+          formattedLoginTime: new Date(user.loginTime).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          })
+        }));
+
+        setActiveUsers(formattedUsers);
       } catch (err) {
-        console.error(err);
+        console.error("Dashboard Fetch Error:", err);
       } finally {
         setLoading(false);
       }
@@ -40,6 +54,15 @@ export default function DeveloperDashboard() {
   }, []);
 
   if (loading) return <div className="p-5">Loading...</div>;
+
+  
+  const columns = [
+    { label: "#", render: (_, i) => i + 1, width: "3%" },
+    { label: "Username", field: "name", width: "16%" },
+    { label: "Business", field: "businessName", width: "auto" },
+    { label: "Login Time", field: "formattedLoginTime", width: "20%" },
+    { label: "IP Address", field: "ipAddress", width: "20%", align: "center" },
+  ];
 
   const devTileData = [
     {
@@ -80,7 +103,7 @@ export default function DeveloperDashboard() {
   ];
 
   return (
-    <div className="space-y-6 p-3 min-h-screen">
+    <div className="max-w-7xl mx-auto space-y-6 p-3 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Developer Dashboard</h1>
@@ -95,37 +118,18 @@ export default function DeveloperDashboard() {
       </div>
 
       {/* Logged-in Users List */}
-      <div className="bg-white rounded-2xl p-6 shadow border">
+      <div className="bg-white rounded-2xl p-6 shadow border border-gray-300">
         <h2 className="text-2xl font-semibold mb-4">Active Users</h2>
 
         {activeUsers.length === 0 ? (
           <p className="text-gray-500">No users currently logged in.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-200">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="text-left px-4 py-2 border-b">User Name</th>
-                  <th className="text-left px-4 py-2 border-b">Business</th>
-                  <th className="text-left px-4 py-2 border-b">Login Time</th>
-                  <th className="text-left px-4 py-2 border-b">IP Address</th>
-                  <th className="text-left px-4 py-2 border-b">User Agent</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeUsers.map((u, i) => (
-                  <tr key={i} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 border-b">{u.name}</td>
-                    <td className="px-4 py-2 border-b">{u.businessName}</td>
-                    <td className="px-4 py-2 border-b">
-                      {new Date(u.loginTime).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-2 border-b">{u.ipAddress || "-"}</td>
-                    <td className="px-4 py-2 border-b">{u.userAgent || "-"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <Table
+                columns={columns}
+                data={activeUsers}
+                bottomGap={false}
+              />
           </div>
         )}
       </div>

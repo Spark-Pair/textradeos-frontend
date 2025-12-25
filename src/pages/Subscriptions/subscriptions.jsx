@@ -119,7 +119,7 @@ export default function Subscriptions() {
   ];
 
   return (
-    <div className="w-full h-full overflow-hidden grid grid-rows-[auto_1fr] gap-4 relative">
+    <div className="h-full overflow-hidden grid grid-rows-[auto_1fr] gap-4 relative">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Subscriptions</h1>

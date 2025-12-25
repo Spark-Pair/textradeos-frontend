@@ -88,7 +88,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-4 p-2.5 min-h-screen">
+    <div className="max-w-7xl mx-auto space-y-4 p-2.5 min-h-screen">
       {/* Welcome Card */}
       <div className="flex items-center justify-between px-1.5 border-b border-gray-300 pb-3">
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
@@ -106,7 +106,7 @@ export default function Dashboard() {
       </div>
 
       {/* Sales Chart Section */}
-      <div className="bg-white shadow-sm rounded-2xl p-6 border border-gray-300">
+      <div className="bg-white shadow-sm rounded-2xl p-6 border border-gray-300 space-y-5">
         <h2 className="text-[1.45rem] font-semibold text-gray-800 mb-5 flex justify-between items-center">
           Weekly Sales Performance
           <span className="text-sm font-medium text-[#127475] bg-[#127475]/18 px-5 py-4 rounded-full leading-0">

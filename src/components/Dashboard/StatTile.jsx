@@ -1,6 +1,6 @@
 const IconWrapper = ({ children, color, bgColor }) => (
   <div
-    className={`p-3.5 rounded-xl ${bgColor} ${color} flex items-center justify-center`}
+    className={`p-3.5 rounded-lg ${bgColor} ${color} flex items-center justify-center`}
   >
     {children}
   </div>
