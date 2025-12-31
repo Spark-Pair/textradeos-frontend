@@ -15,7 +15,7 @@ export default function Button({
       break;
 
     case "red-btn":
-      styles = "bg-red-700 text-white hover:bg-red-800 active:scale-95 px-4 py-2 rounded-xl";
+      styles = "bg-rose-700 text-white hover:bg-rose-800 active:scale-95 px-4 py-2 rounded-xl";
       break;
 
     case "secondary-btn":

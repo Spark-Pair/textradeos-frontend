@@ -85,8 +85,8 @@ export default function Filters({ fields, data = [], onFiltered, onFilterStateCh
                 className={`h-screen w-96 p-2 pl-0 fixed top-0 -right-100 transform transition-transform duration-300 ease-in-out z-70 ${isFilterModalOpen ? "right-0" : ""
                     }`}
             >
-                <div className="w-full h-full bg-[#f8fbfb] drop-shadow-md border border-r-0 border-gray-300 rounded-lg flex flex-col">
-                    <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200">
+                <div className="w-full h-full bg-[#f8fbfb] drop-shadow-md border border-r-0 border-gray-300 rounded-2xl flex flex-col p-2">
+                    <div className="flex justify-between items-center px-3 py-2 border-b border-gray-200">
                         <h2 className="text-lg font-semibold">Filter Options</h2>
                         <button
                             className="text-gray-500 hover:text-gray-700"

@@ -3,8 +3,8 @@ import Button from "../Button";
 import DetailItem from "../DetailItem";
 import { useAuth } from "../../context/AuthContext";
 
-export default function CustomerDetailsModal({ customer, onClose, onInvoice, onPayment, onEdit, onStatement, onToggleStatus }) {
-  const user = useAuth();
+export default function CustomerDetailsModal({ customer, onClose, onPayment, onEdit, onStatement, onToggleStatus }) {
+  const { user } = useAuth();
   if (!customer) return null;
 
   const isActive = customer.status === "Active";
@@ -40,19 +40,9 @@ export default function CustomerDetailsModal({ customer, onClose, onInvoice, onP
           Statement
         </Button>
 
-        {user?.isReadOnly &&
+        {!user?.isReadOnly &&
           ( 
             <>
-              <Button
-                onClick={() => {
-                  onClose();
-                  onInvoice(customer);
-                }}
-                variant="green-btn"
-              >
-                Invoice
-              </Button>
-
               <Button
                 onClick={() => {
                   onClose();

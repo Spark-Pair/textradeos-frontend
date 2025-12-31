@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import Button from "../../components/Button";
 import AddCustomerModal from "../../components/Customers/AddCustomerModal";
 import AddPaymentModal from "../../components/Customers/AddPaymentModal";
 import CustomerDetailsModal from "../../components/Customers/CustomerDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
 import { useToast } from "../../context/ToastContext";
-import GenerateInvoiceModal from "../../components/Customers/GenerateInvoiceModal";
 import { extractMongooseMessage } from "../../utils/index";
-import InvoiceDetailsModal from "../../components/Invoices/InvoiceDetailsModal";
 import { Plus } from "lucide-react";
 import Filters from "../../components/Filters";
 import GenerateStatementModal from "../../components/Customers/GenerateStatementModal";
@@ -21,17 +18,11 @@ export default function Customers() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [editingCustomer, setEditingCustomer] = useState(null);
 
-  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
-  const [invoicingCustomer, setInvoicingCustomer] = useState(null);
-
   const [isGenerateStatementModalOpen, setIsGenerateStatementModalOpen] = useState(false);
   const [statementCustomer, setStatementCustomer] = useState(null);
 
   const [isStatementModalOpen, setIsStatementModalOpen] = useState(false);
   const [statementData, setStatementData] = useState(null);
-
-  const [isInvoiceDetailsModalOpen, setIsInvoiceDetailsModalOpen] = useState(false);
-  const [generatedInvoice, setGeneratedInvoice] = useState(null);
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentCustomer, setPaymentCustomer] = useState(null);
@@ -122,12 +113,6 @@ export default function Customers() {
       );
       return null;
     }
-  };
-
-
-  const handleInvoice = (customer) => {
-    setIsInvoiceModalOpen(true);
-    setInvoicingCustomer(customer);
   };
 
   const handlePayment = (customer) => {
@@ -267,30 +252,6 @@ export default function Customers() {
           />
         )}
 
-        {isInvoiceModalOpen && (
-          <GenerateInvoiceModal
-            onClose={async (invoice) => {
-              await loadCustomers();
-
-              setIsInvoiceModalOpen(false);
-              setInvoicingCustomer(null);
-
-              if (invoice && invoice._id) {
-                setIsInvoiceDetailsModalOpen(true);
-                setGeneratedInvoice(invoice);
-              }
-            }}
-            invoicingCustomer={invoicingCustomer}
-          />
-        )}
-
-        {isInvoiceDetailsModalOpen && (
-          <InvoiceDetailsModal
-            invoice={generatedInvoice}
-            onClose={() => setGeneratedInvoice(null)}
-          />
-        )}
-
         {isPaymentModalOpen && (
           <AddPaymentModal
             onClose={() => {
@@ -306,7 +267,6 @@ export default function Customers() {
           <CustomerDetailsModal
             customer={selectedCustomer}
             onClose={() => setSelectedCustomer(null)}
-            onInvoice={handleInvoice}
             onPayment={handlePayment}
             onEdit={handleEdit}
             onStatement={handleStatement}

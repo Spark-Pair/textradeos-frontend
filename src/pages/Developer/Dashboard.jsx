@@ -12,7 +12,7 @@ export default function DeveloperDashboard() {
 
   const [loading, setLoading] = useState(true);
   const [devStats, setDevStats] = useState(null);
-  const [activeUsers, setActiveUsers] = useState([]);
+  const [loggedinUsers, setloggedinUsers] = useState([]);
 
   useEffect(() => {
     document.title = "Developer Dashboard | TexTradeOS";
@@ -42,7 +42,7 @@ export default function DeveloperDashboard() {
           })
         }));
 
-        setActiveUsers(formattedUsers);
+        setloggedinUsers(formattedUsers);
       } catch (err) {
         console.error("Dashboard Fetch Error:", err);
       } finally {
@@ -119,15 +119,15 @@ export default function DeveloperDashboard() {
 
       {/* Logged-in Users List */}
       <div className="bg-white rounded-2xl p-6 shadow border border-gray-300">
-        <h2 className="text-2xl font-semibold mb-4">Active Users</h2>
+        <h2 className="text-2xl font-semibold mb-4">Logged in Users</h2>
 
-        {activeUsers.length === 0 ? (
+        {loggedinUsers.length === 0 ? (
           <p className="text-gray-500">No users currently logged in.</p>
         ) : (
           <div className="overflow-x-auto">
             <Table
                 columns={columns}
-                data={activeUsers}
+                data={loggedinUsers}
                 bottomGap={false}
               />
           </div>

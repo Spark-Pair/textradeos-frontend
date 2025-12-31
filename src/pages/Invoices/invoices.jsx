@@ -34,19 +34,36 @@ export default function Invoices() {
     try {
       setLoading(true);
       const { data } = await axiosClient.get("/invoices/");
-
       const flattened = data.map((invoice) => ({
         ...invoice,
-        customerName: invoice.customerId?.name || "-",
-        date: formatDateWithDay(invoice.createdAt),
+        // Update: Agar customerId null hai toh "Walk-in Customer" dikhao
+        customerName: invoice.customerId?.name || "Walk-in Customer",
+        date: formatDateWithDay(invoice.invoiceDate || invoice.createdAt),
       }));
       setInvoices(flattened);
-
     } catch (error) {
-      console.error("Failed to load invoices:", error);
       addToast("Failed to load invoices", "error");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddOrUpdateInvoice = async (formData) => {
+    try {
+      if (editingInvoice) {
+        await axiosClient.put(`/invoices/${editingInvoice._id}`, formData);
+        addToast("Invoice updated successfully", "success");
+      } else {
+        await axiosClient.post("/invoices/", formData);
+        addToast("Invoice created successfully", "success");
+      }
+      await loadInvoices();
+      setIsModalOpen(false);
+      setEditingInvoice(null);
+    } catch (error) {
+      console.error("Failed to save invoice:", error);
+      // backend error message extraction
+      addToast(error.response?.data?.message || "Failed to save invoice", "error");
     }
   };
 
@@ -123,7 +140,8 @@ export default function Invoices() {
         contextMenuItems={contextMenuItems}
         loading={loading}
         bottomButtonOnclick={() => {
-          navigate('/customers')
+          setEditingInvoice(null);
+          setIsModalOpen(true);
         }}
         bottomButtonIcon={<Users size={16} />}
       />

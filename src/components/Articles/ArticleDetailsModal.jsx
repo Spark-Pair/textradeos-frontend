@@ -5,7 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 
 
 export default function ArticleDetailsModal({ article, onClose, onEdit, onAddStock }) {
-  const user = useAuth();
+  const { user } = useAuth();
   if (!article) return null;
 
   const isActive = article.status === "Active";
@@ -46,7 +46,7 @@ export default function ArticleDetailsModal({ article, onClose, onEdit, onAddSto
       {/* --- Actions --- */}
       <div className="mt-8 flex justify-end gap-3">
         
-        {user?.isReadOnly &&
+        {!user?.isReadOnly &&
           ( 
             <>
               <Button
