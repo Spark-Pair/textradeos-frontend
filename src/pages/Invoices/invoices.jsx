@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import Button from "../../components/Button";
 import GenerateInvoiceModal from "../../components/Invoices/GenerateInvoiceModal";
 import InvoiceDetailsModal from "../../components/Invoices/InvoiceDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
 import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
-import { Users } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Filters from "../../components/Filters";
 import PrintListBtn from "../../components/PrintListBtn";
@@ -143,7 +142,7 @@ export default function Invoices() {
           setEditingInvoice(null);
           setIsModalOpen(true);
         }}
-        bottomButtonIcon={<Users size={16} />}
+        bottomButtonIcon={<Plus size={16} />}
       />
 
       {/* Modals */}
