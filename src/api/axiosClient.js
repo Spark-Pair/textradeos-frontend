@@ -1,7 +1,12 @@
 import axios from "axios";
 
+const rawBase = import.meta.env.VITE_BACKEND_URL || "/";
+const normalizedBase = rawBase.endsWith("/")
+  ? rawBase.slice(0, -1)
+  : rawBase;
+
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL+"api",
+  baseURL: `${normalizedBase}/api`,
 });
 
 axiosClient.interceptors.request.use((config) => {

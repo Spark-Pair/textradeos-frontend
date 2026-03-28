@@ -6,6 +6,7 @@ import Button from "../../components/Button.jsx";
 import StatTile from "../../components/Dashboard/StatTile.jsx";
 import SalesChart from "../../components/Dashboard/SalesChart.jsx";
 import axiosClient from "../../api/axiosClient";
+import { getMeta, setMeta } from "../../offline/api";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -25,8 +26,11 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        const cached = await getMeta("stats:user");
+        if (cached) setStats(cached);
         const res = await axiosClient.get("/dashboard/stats");
         setStats(res.data);
+        await setMeta("stats:user", res.data);
       } catch (err) {
         console.error("Error fetching stats:", err);
       }
@@ -38,10 +42,14 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchSales = async () => {
       try {
+        const cacheKey = `sales:user:${startDate}:${endDate}`;
+        const cached = await getMeta(cacheKey);
+        if (cached) setChartData(cached);
         const res = await axiosClient.get("/dashboard/sales", {
           params: { start: startDate, end: endDate },
         });
         setChartData(res.data);
+        await setMeta(cacheKey, res.data);
       } catch (err) {
         console.error("Error fetching sales:", err);
       }

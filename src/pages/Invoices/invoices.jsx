@@ -4,14 +4,18 @@ import GenerateInvoiceModal from "../../components/Invoices/GenerateInvoiceModal
 import InvoiceDetailsModal from "../../components/Invoices/InvoiceDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
+import { loadCachedThenNetwork, createItem, updateItem } from "../../offline/api";
 import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Filters from "../../components/Filters";
 import PrintListBtn from "../../components/PrintListBtn";
+import Pagination from "../../components/Pagination";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Invoices() {
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [editingInvoice, setEditingInvoice] = useState(null);
@@ -19,6 +23,8 @@ export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filtersActive, setFiltersActive] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
 
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
@@ -32,7 +38,21 @@ export default function Invoices() {
   const loadInvoices = async () => {
     try {
       setLoading(true);
-      const { data } = await axiosClient.get("/invoices/");
+      const data = await loadCachedThenNetwork({
+        store: "invoices",
+        endpoint: "/invoices/",
+        axiosClient,
+        bizId: user?.businessId?._id || user?.businessId || null,
+        onCache: (cached) => {
+          const cachedFlattened = cached.map((invoice) => ({
+            ...invoice,
+            customerName: invoice.customerId?.name || "Walk-in Customer",
+            date: formatDateWithDay(invoice.invoiceDate || invoice.createdAt),
+          }));
+          setInvoices(cachedFlattened);
+          setLoading(false);
+        },
+      });
       const flattened = data.map((invoice) => ({
         ...invoice,
         // Update: Agar customerId null hai toh "Walk-in Customer" dikhao
@@ -50,10 +70,23 @@ export default function Invoices() {
   const handleAddOrUpdateInvoice = async (formData) => {
     try {
       if (editingInvoice) {
-        await axiosClient.put(`/invoices/${editingInvoice._id}`, formData);
+        await updateItem({
+          store: "invoices",
+          endpoint: "/invoices",
+          axiosClient,
+          id: editingInvoice._id,
+          payload: formData,
+          bizId: user?.businessId?._id || user?.businessId || null,
+        });
         addToast("Invoice updated successfully", "success");
       } else {
-        await axiosClient.post("/invoices/", formData);
+        await createItem({
+          store: "invoices",
+          endpoint: "/invoices",
+          axiosClient,
+          payload: formData,
+          bizId: user?.businessId?._id || user?.businessId || null,
+        });
         addToast("Invoice created successfully", "success");
       }
       await loadInvoices();
@@ -75,6 +108,18 @@ export default function Invoices() {
     { label: "Discount", field: "discount", width: "15%", align: "center" },
     { label: "Net Amount", field: "netAmount", width: "15%", align: "center" },
   ];
+
+  const sourceData = filtersActive ? filteredData : invoices;
+  const totalPages = Math.max(1, Math.ceil(sourceData.length / pageSize));
+  const pagedData = sourceData.slice((page - 1) * pageSize, page * pageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filtersActive]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [totalPages, page]);
 
   const contextMenuItems = [
     { label: "View Details", onClick: (invoice) => setSelectedInvoice(invoice) },
@@ -134,7 +179,7 @@ export default function Invoices() {
       {/* Table */}
       <Table
         columns={columns}
-        data={filtersActive ? filteredData : invoices}
+        data={pagedData}
         onRowClick={(invoice) => setSelectedInvoice(invoice)}
         contextMenuItems={contextMenuItems}
         loading={loading}
@@ -144,6 +189,8 @@ export default function Invoices() {
         }}
         bottomButtonIcon={<Plus size={16} />}
       />
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {/* Modals */}
       <AnimatePresence>

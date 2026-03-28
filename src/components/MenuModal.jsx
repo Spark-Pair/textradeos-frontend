@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef, useState, useMemo } from "react";
-import { Search, Building2, Users, LayoutDashboard, Shirt, ReceiptText, BanknoteArrowDown } from "lucide-react";
+import { Search, Building2, Users, LayoutDashboard, Shirt, ReceiptText, BanknoteArrowDown, Cloud } from "lucide-react";
 import NavItem from "./NavItem";
 import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
@@ -63,6 +63,12 @@ export default function MenuModal({ onClose }) {
         icon: <BanknoteArrowDown size={18} />,
         roles: ["user"],
         path: "/payments",
+      },
+      {
+        label: "Sync Status",
+        icon: <Cloud size={18} />,
+        roles: ["developer", "user"],
+        path: "/sync-status",
       },
     ],
     []

@@ -5,14 +5,19 @@ import AddArticleModal from "../../components/Articles/AddArticleModal";
 import ArticleDetailsModal from "../../components/Articles/ArticleDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
+import { loadCachedThenNetwork, createItem, updateItem, postAction } from "../../offline/api";
+import { dbPromise } from "../../offline/db";
 import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
 import { Plus } from "lucide-react";
 import AddStockModal from "../../components/Articles/AddStockModal";
 import Filters from "../../components/Filters";
 import PrintListBtn from "../../components/PrintListBtn";
+import Pagination from "../../components/Pagination";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Articles() {
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
@@ -22,6 +27,8 @@ export default function Articles() {
   const [articles, setArticles] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filtersActive, setFiltersActive] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
   
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
@@ -34,13 +41,24 @@ export default function Articles() {
   const loadArticles = async () => {
     try {
       setLoading(true);
-      const { data } = await axiosClient.get("/articles/");
+      const data = await loadCachedThenNetwork({
+        store: "articles",
+        endpoint: "/articles/",
+        axiosClient,
+        bizId: user?.businessId?._id || user?.businessId || null,
+        onCache: (cached) => {
+          const cachedFlattened = cached.map((article) => ({
+            ...article,
+            reg_date: formatDateWithDay(article.createdAt),
+          }));
+          setArticles(cachedFlattened);
+          setLoading(false);
+        },
+      });
 
       const flattened = data.map((article) => ({
         ...article,
-        username: article.userId?.username || "-",
-        status: article.isActive ? "Active" : "Inactive",
-        reg_date: formatDateWithDay(article.registration_date),
+        reg_date: formatDateWithDay(article.createdAt),
       }));
 
       setArticles(flattened);
@@ -57,10 +75,23 @@ export default function Articles() {
     try {
       if (editingArticle) {
         // 🟢 Update existing
-        await axiosClient.put(`/articles/${editingArticle._id}`, formData);
+        await updateItem({
+          store: "articles",
+          endpoint: "/articles",
+          axiosClient,
+          id: editingArticle._id,
+          payload: formData,
+          bizId: user?.businessId?._id || user?.businessId || null,
+        });
       } else {
         // 🟢 Create new
-        await axiosClient.post("/articles/", formData);
+        await createItem({
+          store: "articles",
+          endpoint: "/articles",
+          axiosClient,
+          payload: formData,
+          bizId: user?.businessId?._id || user?.businessId || null,
+        });
       }
       await loadArticles();
       setIsModalOpen(false);
@@ -73,7 +104,27 @@ export default function Articles() {
 
   const handleSubmitAddStock = async (formData) => {
     try {
-      await axiosClient.post("/articles/add-stock", formData);
+      await postAction({
+        endpoint: "/articles/add-stock",
+        axiosClient,
+        payload: formData,
+        optimistic: async () => {
+          const next = articles.map((a) =>
+            a._id === formData.articleId
+              ? { ...a, stock: (a.stock || 0) + Number(formData.quantity || 0) }
+              : a
+          );
+          setArticles(next);
+          const db = await dbPromise;
+          const item = await db.get("articles", formData.articleId);
+          if (item) {
+            await db.put("articles", {
+              ...item,
+              stock: (item.stock || 0) + Number(formData.quantity || 0),
+            });
+          }
+        },
+      });
       await loadArticles();
       setIsAddStockModalOpen(false);
       setAddStockArticle(null);
@@ -104,6 +155,18 @@ export default function Articles() {
     { label: "Selling Price", field: "selling_price", width: "10%", align: "center" },
     { label: "Stock", field: "stock", width: "auto", align: "center" },
   ];
+
+  const sourceData = filtersActive ? filteredData : articles;
+  const totalPages = Math.max(1, Math.ceil(sourceData.length / pageSize));
+  const pagedData = sourceData.slice((page - 1) * pageSize, page * pageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filtersActive]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [totalPages, page]);
 
   const contextMenuItems = [
     { label: "View Details", onClick: (article) => setSelectedArticle(article) },
@@ -191,7 +254,7 @@ export default function Articles() {
       {/* Table */}
       <Table
         columns={columns}
-        data={filtersActive ? filteredData : articles}
+        data={pagedData}
         onRowClick={(article) => setSelectedArticle(article)}
         contextMenuItems={contextMenuItems}
         loading={loading}
@@ -201,6 +264,8 @@ export default function Articles() {
         }}
         bottomButtonIcon={<Plus size={16} />}
       />
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {/* Modals */}
       <AnimatePresence>

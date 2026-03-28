@@ -1,19 +1,17 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
+import { prefetchAllData } from "../offline/prefetch";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const location = useLocation(); // 👈 ROUTE LISTENER
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔁 RUNS ON:
-  // ✔ App load
-  // ✔ EVERY route change
+  // 🔁 RUNS ON APP LOAD
   useEffect(() => {
     const checkAuth = async () => {
       setLoading(true);
@@ -43,7 +41,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuth();
-  }, [location.pathname]); // 👈 MAIN FIX
+  }, []);
 
   const login = (data) => {
     localStorage.setItem("token", data.token);
@@ -51,6 +49,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("sessionId", data.sessionId);
 
     setUser(data);
+    const bizId = data.businessId?._id || data.businessId || null;
+    prefetchAllData({ axiosClient, role: data.role, bizId });
     navigate("/dashboard", { replace: true });
   };
 

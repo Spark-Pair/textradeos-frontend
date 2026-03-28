@@ -4,13 +4,18 @@ import AddBusinessModal from "../../components/Businesses/AddBusinessModal";
 import BusinessDetailsModal from "../../components/Businesses/BusinessDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
+import { loadCachedThenNetwork, createItem, updateItem, deleteItem, postAction } from "../../offline/api";
 import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
 import { Plus } from "lucide-react";
 import Filters from "../../components/Filters";
 import PrintListBtn from "../../components/PrintListBtn";
+import { dbPromise } from "../../offline/db";
+import Pagination from "../../components/Pagination";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Businesses() {
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [editingBusiness, setEditingBusiness] = useState(null);
@@ -18,6 +23,8 @@ export default function Businesses() {
   const [businesses, setBusinesses] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filtersActive, setFiltersActive] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
 
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
@@ -30,7 +37,22 @@ export default function Businesses() {
   const loadBusinesses = async () => {
     try {
       setLoading(true);
-      const { data } = await axiosClient.get("/businesses/");
+      const data = await loadCachedThenNetwork({
+        store: "businesses",
+        endpoint: "/businesses/",
+        axiosClient,
+        bizId: user?.businessId?._id || user?.businessId || null,
+        onCache: (cached) => {
+          const cachedFlattened = cached.map((biz) => ({
+            ...biz,
+            username: biz.userId?.username || "-",
+            status: biz.isActive ? "Active" : "Inactive",
+            reg_date: formatDateWithDay(biz.registration_date),
+          }));
+          setBusinesses(cachedFlattened);
+          setLoading(false);
+        },
+      });
 
       const flattened = data.map((biz) => ({
         ...biz,
@@ -52,10 +74,23 @@ export default function Businesses() {
     try {
       if (editingBusiness) {
         // 🟢 Update existing
-        await axiosClient.put(`/businesses/${editingBusiness._id}`, formData);
+        await updateItem({
+          store: "businesses",
+          endpoint: "/businesses",
+          axiosClient,
+          id: editingBusiness._id,
+          payload: formData,
+          bizId: user?.businessId?._id || user?.businessId || null,
+        });
       } else {
         // 🟢 Create new
-        await axiosClient.post("/businesses/", formData);
+        await createItem({
+          store: "businesses",
+          endpoint: "/businesses",
+          axiosClient,
+          payload: formData,
+          bizId: user?.businessId?._id || user?.businessId || null,
+        });
       }
       await loadBusinesses();
       setIsModalOpen(false);
@@ -69,7 +104,12 @@ export default function Businesses() {
   const handleDelete = async (biz) => {
     if (!window.confirm(`Delete ${biz.name}?`)) return;
     try {
-      await axiosClient.delete(`/businesses/${biz._id}`);
+      await deleteItem({
+        store: "businesses",
+        endpoint: "/businesses",
+        axiosClient,
+        id: biz._id,
+      });
       await loadBusinesses();
     } catch (error) {
       console.error("Failed to delete business:", error);
@@ -93,6 +133,18 @@ export default function Businesses() {
     { label: "Status", field: "status", width: "10%", align: "center" },
   ];
 
+  const sourceData = filtersActive ? filteredData : businesses;
+  const totalPages = Math.max(1, Math.ceil(sourceData.length / pageSize));
+  const pagedData = sourceData.slice((page - 1) * pageSize, page * pageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filtersActive]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [totalPages, page]);
+
   const contextMenuItems = [
     { label: "View Details", onClick: (row) => console.log(row) },
     { label: "Edit", onClick: (row) => console.log("Edit:", row) },
@@ -102,7 +154,23 @@ export default function Businesses() {
   const handleToggleStatus = async (biz) => {
     setSelectedBusiness(null)
     try {
-      await axiosClient.patch(`/businesses/${biz._id}/toggle`);
+      await postAction({
+        endpoint: `/businesses/${biz._id}/toggle`,
+        axiosClient,
+        payload: {},
+        method: "patch",
+        optimistic: async () => {
+          const next = businesses.map((b) =>
+            b._id === biz._id ? { ...b, isActive: !b.isActive } : b
+          );
+          setBusinesses(next);
+          const db = await dbPromise;
+          const item = await db.get("businesses", biz._id);
+          if (item) {
+            await db.put("businesses", { ...item, isActive: !item.isActive });
+          }
+        },
+      });
       await loadBusinesses();
     } catch (error) {
       console.error("Failed change status:", error);
@@ -170,7 +238,7 @@ export default function Businesses() {
       {/* Table */}
       <Table
         columns={columns}
-        data={filtersActive ? filteredData : businesses}
+        data={pagedData}
         onRowClick={(biz) => setSelectedBusiness(biz)}
         contextMenuItems={contextMenuItems}
         loading={loading}
@@ -180,6 +248,8 @@ export default function Businesses() {
         }}
         bottomButtonIcon={<Plus size={16} />}
       />
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {/* Modals */}
       <AnimatePresence>

@@ -5,6 +5,7 @@ import AddPaymentModal from "../../components/Customers/AddPaymentModal";
 import CustomerDetailsModal from "../../components/Customers/CustomerDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
+import { loadCachedThenNetwork, createItem, updateItem, postAction, getStatementCache, setStatementCache } from "../../offline/api";
 import { useToast } from "../../context/ToastContext";
 import { extractMongooseMessage } from "../../utils/index";
 import { Plus } from "lucide-react";
@@ -12,8 +13,12 @@ import Filters from "../../components/Filters";
 import GenerateStatementModal from "../../components/Customers/GenerateStatementModal";
 import StatementModal from "../../components/Customers/StatementModal";
 import PrintListBtn from "../../components/PrintListBtn";
+import { dbPromise } from "../../offline/db";
+import Pagination from "../../components/Pagination";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Customers() {
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [editingCustomer, setEditingCustomer] = useState(null);
@@ -30,6 +35,8 @@ export default function Customers() {
   const [customers, setCustomers] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filtersActive, setFiltersActive] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
 
   const [loading, setLoading] = useState(false);
 
@@ -43,7 +50,21 @@ export default function Customers() {
   const loadCustomers = async () => {
     try {
       setLoading(true);
-      const { data } = await axiosClient.get("/customers/");
+      const data = await loadCachedThenNetwork({
+        store: "customers",
+        endpoint: "/customers/",
+        axiosClient,
+        bizId: user?.businessId?._id || user?.businessId || null,
+        onCache: (cached) => {
+          const cachedFlattened = cached.map((customer) => ({
+            ...customer,
+            status: customer.isActive ? "Active" : "In Active",
+            address: customer.address || "-",
+          }));
+          setCustomers(cachedFlattened);
+          setLoading(false);
+        },
+      });
 
       const flattened = data.map((customer) => ({
         ...customer,
@@ -64,10 +85,23 @@ export default function Customers() {
     try {
       if (editingCustomer) {
         // 🟢 Update existing
-        await axiosClient.put(`/customers/${editingCustomer._id}`, formData);
+        await updateItem({
+          store: "customers",
+          endpoint: "/customers",
+          axiosClient,
+          id: editingCustomer._id,
+          payload: formData,
+          bizId: user?.businessId?._id || user?.businessId || null,
+        });
       } else {
         // 🟢 Create new
-        await axiosClient.post("/customers/", formData);
+        await createItem({
+          store: "customers",
+          endpoint: "/customers",
+          axiosClient,
+          payload: formData,
+          bizId: user?.businessId?._id || user?.businessId || null,
+        });
       }
       await loadCustomers();
       setIsModalOpen(false);
@@ -81,11 +115,18 @@ export default function Customers() {
 
   const handleAddCustomerPayment = async (formData) => {
     try {
-      const { data } = await axiosClient.post("/payments/", formData);
+      const data = await createItem({
+        store: "payments",
+        endpoint: "/payments",
+        axiosClient,
+        payload: formData,
+        bizId: user?.businessId?._id || user?.businessId || null,
+        responseSelector: (res) => res.data || res,
+      });
       await loadCustomers();
       setIsModalOpen(false);
       setEditingCustomer(null);
-      addToast(data.message, "success");
+      addToast(data.message || "Payment added", "success");
     } catch (error) {
       console.error("Failed to save customer:", error);
 
@@ -96,6 +137,13 @@ export default function Customers() {
   const handleGenerateStatement = async (formData) => {
     try {
       const { customerId, ...dataToSend } = formData;
+      const cacheKey = `statement:${customerId}:${dataToSend.date_from || "-"}:${dataToSend.date_to || "-"}`;
+      const cached = await getStatementCache(cacheKey);
+      if (cached) {
+        setStatementData(cached);
+        setIsStatementModalOpen(true);
+      }
+
       const { data } = await axiosClient.patch(`/customers/${customerId}/statement`, dataToSend);
 
       setIsGenerateStatementModalOpen(false);
@@ -103,10 +151,15 @@ export default function Customers() {
 
       setStatementData(data);
       setIsStatementModalOpen(true);
+      await setStatementCache(cacheKey, data);
 
       addToast("Statement generated successfully", "success");
     } catch (error) {
       console.error("Failed to generate statement:", error);
+      if (!navigator.onLine) {
+        addToast("Offline: showing cached statement if available", "error");
+        return;
+      }
       addToast(
         error.response?.data?.message || "Failed to generate statement",
         "error"
@@ -140,6 +193,18 @@ export default function Customers() {
     { label: "Status", field: "status", width: "10%", align: "center" },
   ];
 
+  const sourceData = filtersActive ? filteredData : customers;
+  const totalPages = Math.max(1, Math.ceil(sourceData.length / pageSize));
+  const pagedData = sourceData.slice((page - 1) * pageSize, page * pageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filtersActive]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [totalPages, page]);
+
   const contextMenuItems = [
     { label: "View Details", onClick: (row) => console.log(row) },
     { label: "Edit", onClick: (row) => console.log("Edit:", row) },
@@ -149,7 +214,23 @@ export default function Customers() {
   const handleToggleStatus = async (customer) => {
     setSelectedCustomer(null)
     try {
-      await axiosClient.patch(`/customers/${customer._id}/toggle`);
+      await postAction({
+        endpoint: `/customers/${customer._id}/toggle`,
+        axiosClient,
+        payload: {},
+        method: "patch",
+        optimistic: async () => {
+          const next = customers.map((c) =>
+            c._id === customer._id ? { ...c, isActive: !c.isActive } : c
+          );
+          setCustomers(next);
+          const db = await dbPromise;
+          const item = await db.get("customers", customer._id);
+          if (item) {
+            await db.put("customers", { ...item, isActive: !item.isActive });
+          }
+        },
+      });
       await loadCustomers();
     } catch (error) {
       console.error("Failed change status:", error);
@@ -207,7 +288,7 @@ export default function Customers() {
       {/* Table */}
       <Table
         columns={columns}
-        data={filtersActive ? filteredData : customers}
+        data={pagedData}
         onRowClick={(customer) => setSelectedCustomer(customer)}
         contextMenuItems={contextMenuItems}
         loading={loading}
@@ -217,6 +298,8 @@ export default function Customers() {
         }}
         bottomButtonIcon={<Plus size={16} />}
       />
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {/* Modals */}
       <AnimatePresence>

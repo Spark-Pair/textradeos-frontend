@@ -8,8 +8,11 @@ import axiosClient from "../../api/axiosClient";
 import { formatDateWithDay } from "../../utils";
 import Input from "../Input";
 import Select from "../Select";
+import { loadCachedThenNetwork } from "../../offline/api";
+import { useAuth } from "../../context/AuthContext";
 
 export default function GenerateInvoiceModal({ onClose, onSave }) {
+  const { user } = useAuth();
   const { addToast } = useToast();
 
   const [step, setStep] = useState(1);
@@ -40,7 +43,15 @@ export default function GenerateInvoiceModal({ onClose, onSave }) {
 
   const loadCustomers = async () => {
     try {
-      const { data } = await axiosClient.get("/customers");
+      const data = await loadCachedThenNetwork({
+        store: "customers",
+        endpoint: "/customers",
+        axiosClient,
+        bizId: user?.businessId?._id || user?.businessId || null,
+        onCache: (cached) => {
+          setCustomers(cached.map(c => ({ value: c._id, label: c.name, ...c })));
+        },
+      });
       setCustomers(data.map(c => ({ value: c._id, label: c.name, ...c })));
     } catch (err) {
       addToast("Failed to load customers", "error");
@@ -50,8 +61,18 @@ export default function GenerateInvoiceModal({ onClose, onSave }) {
   const loadArticles = async () => {
     try {
       setLoading(true);
-      const { data } = await axiosClient.get("/articles/");
-      setArticles(data.map(a => ({ ...a, reg_date: formatDateWithDay(a.registration_date) })));
+      const data = await loadCachedThenNetwork({
+        store: "articles",
+        endpoint: "/articles/",
+        axiosClient,
+        bizId: user?.businessId?._id || user?.businessId || null,
+        onCache: (cached) => {
+          setArticles(cached.map(a => ({ ...a, reg_date: formatDateWithDay(a.createdAt) })));
+          setAllArticles(cached);
+          setLoading(false);
+        },
+      });
+      setArticles(data.map(a => ({ ...a, reg_date: formatDateWithDay(a.createdAt) })));
       setAllArticles(data);
     } catch (err) {
       addToast("Failed to load articles", "error");

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { LoaderProvider } from "./context/LoaderContext";
+import { SyncProvider } from "./context/SyncContext";
 
 import Login from "./pages/Login";
 import Unauthorized from "./pages/Unauthorized";
@@ -15,92 +16,104 @@ import Invoices from "./pages/Invoices/invoices";
 import Payments from "./pages/payments/payments";
 import Subscriptions from "./pages/Subscriptions/subscriptions";
 import SubscriptionStatus from "./pages/Subscriptions/SubscriptionStatus";
+import SyncStatus from "./pages/Sync/SyncStatus";
 
 export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <LoaderProvider>
-          <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/unauthorized" element={<Unauthorized />} />
+        <SyncProvider>
+          <LoaderProvider>
+            <Routes>
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
 
-            <Route element={<Layout />}>
-              <Route
-                path="/dashboard"
-                element={
-                  <PrivateRoute>
-                    <Dashboard />
-                  </PrivateRoute>
-                }
-              />
+              <Route element={<Layout />}>
+                <Route
+                  path="/dashboard"
+                  element={
+                    <PrivateRoute>
+                      <Dashboard />
+                    </PrivateRoute>
+                  }
+                />
 
-              <Route
-                path="/businesses"
-                element={
-                  <PrivateRoute roles={["developer"]}>
-                    <Businesses />
-                  </PrivateRoute>
-                }
-              />
+                <Route
+                  path="/businesses"
+                  element={
+                    <PrivateRoute roles={["developer"]}>
+                      <Businesses />
+                    </PrivateRoute>
+                  }
+                />
 
-              <Route
-                path="/subscriptions"
-                element={
-                  <PrivateRoute roles={["developer"]}>
-                    <Subscriptions />
-                  </PrivateRoute>
-                }
-              />
+                <Route
+                  path="/subscriptions"
+                  element={
+                    <PrivateRoute roles={["developer"]}>
+                      <Subscriptions />
+                    </PrivateRoute>
+                  }
+                />
 
-              <Route
-                path="/customers"
-                element={
-                  <PrivateRoute roles={["user"]}>
-                    <Customers />
-                  </PrivateRoute>
-                }
-              />
+                <Route
+                  path="/customers"
+                  element={
+                    <PrivateRoute roles={["user"]}>
+                      <Customers />
+                    </PrivateRoute>
+                  }
+                />
 
-              <Route
-                path="/articles"
-                element={
-                  <PrivateRoute roles={["user"]}>
-                    <Articles />
-                  </PrivateRoute>
-                }
-              />
+                <Route
+                  path="/articles"
+                  element={
+                    <PrivateRoute roles={["user"]}>
+                      <Articles />
+                    </PrivateRoute>
+                  }
+                />
 
-              <Route
-                path="/invoices"
-                element={
-                  <PrivateRoute roles={["user"]}>
-                    <Invoices />
-                  </PrivateRoute>
-                }
-              />
+                <Route
+                  path="/invoices"
+                  element={
+                    <PrivateRoute roles={["user"]}>
+                      <Invoices />
+                    </PrivateRoute>
+                  }
+                />
 
-              <Route
-                path="/payments"
-                element={
-                  <PrivateRoute roles={["user"]}>
-                    <Payments />
-                  </PrivateRoute>
-                }
-              />
+                <Route
+                  path="/payments"
+                  element={
+                    <PrivateRoute roles={["user"]}>
+                      <Payments />
+                    </PrivateRoute>
+                  }
+                />
 
-              <Route
-                path="/subscription-status"
-                element={
-                  <PrivateRoute roles={["user"]}>
-                    <SubscriptionStatus />
-                  </PrivateRoute>
-                }
-              />
-            </Route>
-          </Routes>
-        </LoaderProvider>
+                <Route
+                  path="/subscription-status"
+                  element={
+                    <PrivateRoute roles={["user"]}>
+                      <SubscriptionStatus />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path="/sync-status"
+                  element={
+                    <PrivateRoute roles={["developer", "user"]}>
+                      <SyncStatus />
+                    </PrivateRoute>
+                  }
+                />
+              </Route>
+            </Routes>
+          </LoaderProvider>
+        </SyncProvider>
       </AuthProvider>
     </Router>
   );

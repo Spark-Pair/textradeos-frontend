@@ -4,13 +4,18 @@ import AddSubscriptionModal from "../../components/Subscriptions/AddSubscription
 import SubscriptionDetailsModal from "../../components/Subscriptions/SubscriptionDetailsModal";
 import Table from "../../components/Table";
 import axiosClient from "../../api/axiosClient";
+import { loadCachedThenNetwork, createItem, updateItem, deleteItem, postAction } from "../../offline/api";
 import { formatDateWithDay } from "../../utils/index";
 import { useToast } from "../../context/ToastContext";
 import { Plus } from "lucide-react";
 import Filters from "../../components/Filters";
 import PrintListBtn from "../../components/PrintListBtn";
+import { dbPromise } from "../../offline/db";
+import Pagination from "../../components/Pagination";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Subscriptions() {
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [editingSubscription, setEditingSubscription] = useState(null);
@@ -19,6 +24,8 @@ export default function Subscriptions() {
   const [businesses, setBusinesses] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filtersActive, setFiltersActive] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
 
   const [loading, setLoading] = useState(false);
   const { addToast } = useToast();
@@ -31,7 +38,12 @@ export default function Subscriptions() {
 
   const loadBusinesses = async () => {
     try {
-      const { data } = await axiosClient.get("/businesses");
+      const data = await loadCachedThenNetwork({
+        store: "businesses",
+        endpoint: "/businesses",
+        axiosClient,
+        onCache: (cached) => setBusinesses(cached),
+      });
       setBusinesses(data);
     } catch (err) {
       console.error("Failed to load businesses:", err);
@@ -41,8 +53,23 @@ export default function Subscriptions() {
   const loadSubscriptions = async () => {
     try {
       setLoading(true);
-      const { data } = await axiosClient.get("/subscriptions/");
-      const formatted = data.map((sub, i) => ({
+      const data = await loadCachedThenNetwork({
+        store: "subscriptions",
+        endpoint: "/subscriptions/",
+        axiosClient,
+        bizId: user?.businessId?._id || user?.businessId || null,
+        onCache: (cached) => {
+          const cachedFormatted = cached.map((sub) => ({
+            ...sub,
+            businessName: sub.businessId?.name || "-",
+            startDateFormatted: formatDateWithDay(sub.startDate),
+            endDateFormatted: formatDateWithDay(sub.endDate),
+          }));
+          setSubscriptions(cachedFormatted);
+          setLoading(false);
+        },
+      });
+      const formatted = data.map((sub) => ({
         ...sub,
         businessName: sub.businessId?.name || "-",
         startDateFormatted: formatDateWithDay(sub.startDate),
@@ -61,10 +88,23 @@ export default function Subscriptions() {
     try {
       if (editingSubscription) {
         // Update existing
-        await axiosClient.put(`/subscriptions/${editingSubscription._id}`, formData);
+        await updateItem({
+          store: "subscriptions",
+          endpoint: "/subscriptions",
+          axiosClient,
+          id: editingSubscription._id,
+          payload: formData,
+          bizId: user?.businessId?._id || user?.businessId || null,
+        });
       } else {
         // Create new
-        await axiosClient.post("/subscriptions/", formData);
+        await createItem({
+          store: "subscriptions",
+          endpoint: "/subscriptions",
+          axiosClient,
+          payload: formData,
+          bizId: user?.businessId?._id || user?.businessId || null,
+        });
       }
       await loadSubscriptions();
       setIsModalOpen(false);
@@ -78,7 +118,12 @@ export default function Subscriptions() {
   const handleDelete = async (sub) => {
     if (!window.confirm(`Delete subscription for ${sub.businessName}?`)) return;
     try {
-      await axiosClient.delete(`/subscriptions/${sub._id}`);
+      await deleteItem({
+        store: "subscriptions",
+        endpoint: "/subscriptions",
+        axiosClient,
+        id: sub._id,
+      });
       await loadSubscriptions();
     } catch (error) {
       console.error("Failed to delete subscription:", error);
@@ -93,7 +138,31 @@ export default function Subscriptions() {
 
   const handleToggleStatus = async (sub) => {
     try {
-      await axiosClient.patch(`/subscriptions/${sub._id}/toggle`);
+      await postAction({
+        endpoint: `/subscriptions/${sub._id}/toggle`,
+        axiosClient,
+        payload: {},
+        method: "patch",
+        optimistic: async () => {
+          const next = subscriptions.map((s) =>
+            s._id === sub._id
+              ? {
+                  ...s,
+                  paymentStatus: s.paymentStatus === "paid" ? "unpaid" : "paid",
+                }
+              : s
+          );
+          setSubscriptions(next);
+          const db = await dbPromise;
+          const item = await db.get("subscriptions", sub._id);
+          if (item) {
+            await db.put("subscriptions", {
+              ...item,
+              paymentStatus: item.paymentStatus === "paid" ? "unpaid" : "paid",
+            });
+          }
+        },
+      });
       await loadSubscriptions();
       setSelectedSubscription(null);
     } catch (error) {
@@ -111,6 +180,18 @@ export default function Subscriptions() {
     { label: "End Date", field: "endDateFormatted", width: "12%", align: "center" },
     { label: "Payment Status", field: "paymentStatus", width: "10%", align: "center" },
   ];
+
+  const sourceData = filtersActive ? filteredData : subscriptions;
+  const totalPages = Math.max(1, Math.ceil(sourceData.length / pageSize));
+  const pagedData = sourceData.slice((page - 1) * pageSize, page * pageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filtersActive]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [totalPages, page]);
 
   const contextMenuItems = [
     { label: "View Details", onClick: (row) => setSelectedSubscription(row) },
@@ -163,7 +244,7 @@ export default function Subscriptions() {
       {/* Table */}
       <Table
         columns={columns}
-        data={filtersActive ? filteredData : subscriptions}
+        data={pagedData}
         onRowClick={(sub) => setSelectedSubscription(sub)}
         contextMenuItems={contextMenuItems}
         loading={loading}
@@ -173,6 +254,8 @@ export default function Subscriptions() {
         }}
         bottomButtonIcon={<Plus size={16} />}
       />
+
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
       {/* Modals */}
       <AnimatePresence>

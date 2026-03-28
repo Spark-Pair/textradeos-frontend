@@ -7,11 +7,15 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useLoader } from "../context/LoaderContext";
 import axiosClient from "../api/axiosClient";
+import { getExportCache, setExportCache } from "../offline/api";
+import { useSync } from "../context/SyncContext";
 
 function FloatingNavbar({ onMenuClick }) {
   const { user, logout } = useAuth();
   const { addToast } = useToast();
   const { showLoader, hideLoader } = useLoader();
+  const { outbox } = useSync();
+  const pendingCount = outbox?.length || 0;
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -20,15 +24,24 @@ function FloatingNavbar({ onMenuClick }) {
   const hasRole = (roles) => roles.includes(user?.role);
 
   const downloadExcel = async () => {
-    const res = await axiosClient.get("/export-data", {
-      responseType: "blob",
-    });
-
-    const url = window.URL.createObjectURL(
-      new Blob([res.data], {
+    let blob;
+    if (!navigator.onLine) {
+      const cached = await getExportCache("last-export");
+      if (!cached?.blob) {
+        throw new Error("No cached export available offline.");
+      }
+      blob = cached.blob;
+    } else {
+      const res = await axiosClient.get("/export-data", {
+        responseType: "blob",
+      });
+      blob = new Blob([res.data], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      })
-    );
+      });
+      await setExportCache("last-export", { blob, ts: Date.now() });
+    }
+
+    const url = window.URL.createObjectURL(blob);
 
     const a = document.createElement("a");
     a.href = url;
@@ -143,20 +156,30 @@ function FloatingNavbar({ onMenuClick }) {
             </button>
           </div>
         )}
+        <div className="px-3 py-1.5 text-gray-600 rounded-md cursor-pointer">
+          <button
+            className="w-full text-left"
+            onClick={() => navigate('/sync-status')}
+          >
+            Sync Status {pendingCount > 0 ? `(${pendingCount})` : ""}
+          </button>
+        </div>
         {user?.role != "developer" && (
           <div className="px-3 py-1.5 text-gray-600 rounded-md cursor-pointer">
-            <button
-              className="w-full text-left"
-              onClick={async () => {
-                showLoader();
-                try {
-                  await downloadExcel();
-                  addToast("Exported Successfully!", "success");
-                } finally {
-                  hideLoader();
-                }
-              }}
-            >
+          <button
+            className="w-full text-left"
+            onClick={async () => {
+              showLoader();
+              try {
+                await downloadExcel();
+                addToast("Exported Successfully!", "success");
+              } catch (err) {
+                addToast(err.message || "Export failed", "error");
+              } finally {
+                hideLoader();
+              }
+            }}
+          >
               Export Data
             </button>
           </div>

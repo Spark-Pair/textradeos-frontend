@@ -6,6 +6,7 @@ import { Building2, Users, Banknote, Calendar } from "lucide-react";
 
 import StatTile from "../../components/Dashboard/StatTile.jsx";
 import Table from "../../components/Table.jsx";
+import { getMeta, setMeta } from "../../offline/api";
 
 export default function DeveloperDashboard() {
   const { user } = useAuth();
@@ -20,6 +21,11 @@ export default function DeveloperDashboard() {
     const fetchDashboard = async () => {
       try {
         setLoading(true);
+
+        const cachedStats = await getMeta("stats:dev");
+        const cachedUsers = await getMeta("loggedin:dev");
+        if (cachedStats) setDevStats(cachedStats);
+        if (cachedUsers) setloggedinUsers(cachedUsers);
         
         // Dono requests ko parallel chalaein (Faster performance)
         const [statsRes, usersRes] = await Promise.all([
@@ -43,6 +49,8 @@ export default function DeveloperDashboard() {
         }));
 
         setloggedinUsers(formattedUsers);
+        await setMeta("stats:dev", statsRes.data);
+        await setMeta("loggedin:dev", formattedUsers);
       } catch (err) {
         console.error("Dashboard Fetch Error:", err);
       } finally {
