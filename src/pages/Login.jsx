@@ -107,7 +107,7 @@ export default function Login() {
             <p className="text-center text-gray-500 text-xs">
               TexTradeOS · powered by{" "}
               <a
-                href="https://sparkpair.vercel.app/"
+                href="https://sparkpair.dev/"
                 target="_blank"
                 rel="noreferrer"
                 className="font-medium text-[#127475]/85 hover:text-[#0c5859] transition"
@@ -121,7 +121,7 @@ export default function Login() {
           <div className="absolute bottom-4 right-5.5 text-xs text-gray-400">
             © 2025 TexTradeOS ·{" "}
             <a
-              href="https://sparkpair.vercel.app/"
+              href="https://sparkpair.dev/"
               target="_blank"
               rel="noreferrer"
               className="font-medium text-gray-500 hover:text-[#127475]/85"
