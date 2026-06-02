@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, Search, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 export default function Select({
   options = [],
@@ -15,8 +15,10 @@ export default function Select({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlighted, setHighlighted] = useState(0);
+  const [dropdownStyle, setDropdownStyle] = useState(null);
 
   const rootRef = useRef(null);
+  const dropdownRef = useRef(null);
   const inputRef = useRef(null);
   const listRef = useRef(null);
 
@@ -33,10 +35,44 @@ export default function Select({
     if (!open) setQuery("");
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const updatePosition = () => {
+      const rect = rootRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const gap = 8;
+      const maxHeight = Math.min(260, window.innerHeight - rect.bottom - gap - 12);
+      const shouldOpenUp = maxHeight < 160 && rect.top > window.innerHeight - rect.bottom;
+      const top = shouldOpenUp
+        ? Math.max(12, rect.top - Math.min(260, rect.top - 12) - gap)
+        : rect.bottom + gap;
+
+      setDropdownStyle({
+        top,
+        left: rect.left,
+        width: rect.width,
+        maxHeight: shouldOpenUp ? Math.min(260, rect.top - 12) : Math.max(160, maxHeight),
+      });
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [open]);
+
   // close on outside click
   useEffect(() => {
     function onDoc(e) {
-      if (rootRef.current && !rootRef.current.contains(e.target)) {
+      const clickedTrigger = rootRef.current?.contains(e.target);
+      const clickedDropdown = dropdownRef.current?.contains(e.target);
+      if (!clickedTrigger && !clickedDropdown) {
         setOpen(false);
       }
     }
@@ -128,14 +164,16 @@ export default function Select({
         </div>
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.12 }}
-            className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-lg"
+      {createPortal(
+        open && dropdownStyle ? (
+          <div
+            ref={dropdownRef}
+            className="fixed z-[1000] bg-white border border-gray-200 rounded-xl shadow-lg"
+            style={{
+              top: dropdownStyle.top,
+              left: dropdownStyle.left,
+              width: dropdownStyle.width,
+            }}
           >
             <div className="p-2">
               {searchable && (
@@ -159,7 +197,8 @@ export default function Select({
                 role="listbox"
                 aria-activedescendant={filtered[highlighted] ? `opt-${filtered[highlighted].value}` : undefined}
                 tabIndex={-1}
-                className="max-h-48 overflow-auto mt-2 space-y-1"
+                className="overflow-auto mt-2 space-y-1"
+                style={{ maxHeight: dropdownStyle.maxHeight }}
               >
                 {filtered.length === 0 ? (
                   <div className="px-3 py-2 text-sm text-gray-500">No results</div>
@@ -185,9 +224,10 @@ export default function Select({
                 )}
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        ) : null,
+        document.body
+      )}
     </div>
   );
 }

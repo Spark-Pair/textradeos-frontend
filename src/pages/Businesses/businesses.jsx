@@ -145,12 +145,6 @@ export default function Businesses() {
     if (page > totalPages) setPage(totalPages);
   }, [totalPages, page]);
 
-  const contextMenuItems = [
-    { label: "View Details", onClick: (row) => console.log(row) },
-    { label: "Edit", onClick: (row) => console.log("Edit:", row) },
-    { label: "Delete", onClick: (row) => console.log("Delete:", row), danger: true },
-  ];
-
   const handleToggleStatus = async (biz) => {
     setSelectedBusiness(null)
     try {
@@ -177,6 +171,13 @@ export default function Businesses() {
       addToast("Failed change status", "error");
     }
   };
+
+  const contextMenuItems = [
+    { label: "View Details", onClick: (row) => setSelectedBusiness(row) },
+    { label: "Edit", onClick: handleEdit },
+    { label: "Toggle Status", onClick: handleToggleStatus },
+    { label: "Delete", onClick: handleDelete, danger: true },
+  ];
 
   return (
     <div className="h-full overflow-hidden grid grid-rows-[auto_1fr] gap-4 relative">

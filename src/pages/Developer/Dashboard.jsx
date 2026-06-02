@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import axiosClient from "../../api/axiosClient";
 
@@ -26,26 +26,23 @@ export default function DeveloperDashboard() {
         const cachedUsers = await getMeta("loggedin:dev");
         if (cachedStats) setDevStats(cachedStats);
         if (cachedUsers) setloggedinUsers(cachedUsers);
-        
-        // Dono requests ko parallel chalaein (Faster performance)
+
         const [statsRes, usersRes] = await Promise.all([
           axiosClient.get("/dashboard/stats"),
-          axiosClient.get("/dashboard/getloggedinusers")
+          axiosClient.get("/dashboard/getloggedinusers"),
         ]);
 
         setDevStats(statsRes.data);
 
-        // Login time ko readable format mein convert karna
-        const formattedUsers = usersRes.data.map(user => ({
-          ...user,
-          // Readable format: "Dec 25, 2:30 PM"
-          formattedLoginTime: new Date(user.loginTime).toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          })
+        const formattedUsers = usersRes.data.map((item) => ({
+          ...item,
+          formattedLoginTime: new Date(item.loginTime).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
         }));
 
         setloggedinUsers(formattedUsers);
@@ -63,7 +60,6 @@ export default function DeveloperDashboard() {
 
   if (loading) return <div className="p-5">Loading...</div>;
 
-  
   const columns = [
     { label: "#", render: (_, i) => i + 1, width: "3%" },
     { label: "Username", field: "name", width: "16%" },
@@ -75,35 +71,35 @@ export default function DeveloperDashboard() {
   const devTileData = [
     {
       label: "Total Businesses",
-      value: devStats.totalBusinesses,
+      value: devStats?.totalBusinesses || 0,
       icon: Building2,
       color: "text-blue-500",
       bgColor: "bg-blue-100",
     },
     {
       label: "Active Businesses",
-      value: devStats.activeBusinesses,
+      value: devStats?.activeBusinesses || 0,
       icon: Building2,
       color: "text-green-500",
       bgColor: "bg-green-100",
     },
     {
       label: "Expired Subscriptions",
-      value: devStats.expiredSubscriptions,
+      value: devStats?.expiredSubscriptions || 0,
       icon: Calendar,
       color: "text-red-500",
       bgColor: "bg-red-100",
     },
     {
       label: "Total Users",
-      value: devStats.totalUsers,
+      value: devStats?.totalUsers || 0,
       icon: Users,
       color: "text-purple-500",
       bgColor: "bg-purple-100",
     },
     {
       label: "Total Revenue",
-      value: `PKR ${devStats.totalRevenue?.toLocaleString()}`,
+      value: `PKR ${Number(devStats?.totalRevenue || 0).toLocaleString()}`,
       icon: Banknote,
       color: "text-green-600",
       bgColor: "bg-green-100",
@@ -112,20 +108,17 @@ export default function DeveloperDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 p-3 min-h-screen">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Developer Dashboard</h1>
         <p className="text-lg">Welcome, {user?.name}</p>
       </div>
 
-      {/* Stats Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {devTileData.map((stat, index) => (
-          <StatTile key={index} {...stat} />
+        {devTileData.map((stat) => (
+          <StatTile key={stat.label} {...stat} />
         ))}
       </div>
 
-      {/* Logged-in Users List */}
       <div className="bg-white rounded-2xl p-6 shadow border border-gray-300">
         <h2 className="text-2xl font-semibold mb-4">Logged in Users</h2>
 
@@ -133,11 +126,7 @@ export default function DeveloperDashboard() {
           <p className="text-gray-500">No users currently logged in.</p>
         ) : (
           <div className="overflow-x-auto">
-            <Table
-                columns={columns}
-                data={loggedinUsers}
-                bottomGap={false}
-              />
+            <Table columns={columns} data={loggedinUsers} bottomGap={false} />
           </div>
         )}
       </div>
